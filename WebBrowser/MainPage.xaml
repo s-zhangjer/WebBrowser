@@ -10,12 +10,12 @@
 
     <Grid x:Name="Grid">
         <Button x:Name="btnHome" Content="Home" Margin="10,10,0,0" VerticalAlignment="Top" Click="btnHome_Click"/>
-        <WebView x:Name="wvMain" Margin="0,50,0,0" HorizontalAlignment="Left" Width="1920" VerticalAlignment="Top" Height="1030" SizeChanged="wvMain_SizeChanged"/>
+        <WebView x:Name="wvMain" Margin="0,50,0,0" HorizontalAlignment="Left" Width="1920" VerticalAlignment="Top" Height="1030"/>
         <Button x:Name="btnBack" Content="Back" Margin="0,10,166,0" VerticalAlignment="Top" RenderTransformOrigin="2.122,0.375" HorizontalAlignment="Right"/>
         <Button x:Name="btnForward" Content="Forward" Margin="0,10,90,0" VerticalAlignment="Top" HorizontalAlignment="Right"/>
         <Button x:Name="btnFavorites" Content="Favorites" Margin="0,10,10,0" VerticalAlignment="Top" RenderTransformOrigin="2.587,-0.156" Click="btnFavorites_Click" HorizontalAlignment="Right"/>
-        <TextBox x:Name="tbUrl" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="317" TextChanged="tbUrl_TextChanged"/>
-        <Button x:Name="btnFavoritesTemplate" Content="Button" Margin="1085,287,0,0" VerticalAlignment="Top" Height="30" Width="205" Click="btnFavoritesTemplate_Click"/>
+        <TextBox x:Name="tbUrl" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="317" TextChanged="tbUrl_TextChanged" KeyUp="tbUrl_KeyUp"/>
+        <Button x:Name="btnAddFavorites" Content="Button" Margin="0,50,10,0" VerticalAlignment="Top" Height="30" Width="205" Click="btnFavoritesTemplate_Click" RenderTransformOrigin="3.642,20.423" HorizontalAlignment="Right"/>
         <Button x:Name="btnSearch" Content="Search" Margin="380,10,0,0" VerticalAlignment="Top" Click="btnSearch_Click" HorizontalAlignment="Center"/>
 
     </Grid>

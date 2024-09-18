@@ -30,11 +30,13 @@ namespace WebBrowser
         public MainPage()
         {
             this.InitializeComponent();
-            tbUrl.Text = ".../";
+            tbUrl.Text = "https://www.";
             currentUrl = "";
-            favorites.Add("https://amazon.com");
-            favorites.Add("https://nasa.gov");
+            favorites.Add("https://www.amazon.com");
+            favorites.Add("https://www.nasa.gov");
             favoritesBar = false;
+            wvMain.Width = 2560;
+            btnAddFavorites.Opacity = 0;
         }
 
         private void TextBlock_SelectionChanged(object sender, RoutedEventArgs e)
@@ -60,10 +62,10 @@ namespace WebBrowser
             Button favorite = new Button();
             if (favoritesBar)
             {
-                wvMain.Width = 1920;
+                wvMain.Width += 240;
                 favoritesBar = false;
-                btnFavoritesTemplate.Opacity = 0;
-                btnFavoritesTemplate.IsEnabled = false;
+                btnAddFavorites.Opacity = 0;
+                btnAddFavorites.IsEnabled = false;
 
                 for (int i = 0; i < favorites.Count; i++)
                 {
@@ -79,10 +81,11 @@ namespace WebBrowser
             } 
             else
             {
-                wvMain.Width = 1680;
+                wvMain.Width -= 240;
                 favoritesBar = true;
-                btnFavoritesTemplate.Opacity = 100;
-                btnFavoritesTemplate.IsEnabled = true;
+                btnAddFavorites.Opacity = 100;
+                btnAddFavorites.IsEnabled = true;
+                btnAddFavorites.Margin = new Thickness(0, 75 + 50 * favorites.Count, 10, 0);
 
                 favorite.Opacity = 100;
 
@@ -90,16 +93,7 @@ namespace WebBrowser
                 {
                     for (int i = 0; i < favorites.Count; i++)
                     {
-                        favorite = new Button();
-                        favorite.Name = "favorite" + i;
-                        favorite.VerticalAlignment = VerticalAlignment.Top;
-                        favorite.Margin = new Thickness(0, 75 + 50 * i, 10, 0);
-                        favorite.Content = favorites[i];
-                        favorite.Width = 205;
-                        favorite.Height = 30;
-                        favorite.HorizontalAlignment = HorizontalAlignment.Right;
-                        favorite.Click += favorite_click;
-                        Grid.Children.Add(favorite);
+                        createFavButton(i);
                     }
                 }
 
@@ -107,7 +101,7 @@ namespace WebBrowser
                 {
                     for (int i = 0; i < favorites.Count; i++)
                     {
-                        Object findBtn = Grid.FindName("favorite" + i);
+                        Object findBtn = Grid.FindName("BtnFavorite" + i);
                         if (findBtn is Button)
                         {
                             Button found = findBtn as Button;
@@ -120,10 +114,29 @@ namespace WebBrowser
             }
         }
 
+        void createFavButton(int i)
+        {
+            Button favorite = new Button();
+            favorite.Name = "favorite" + i;
+            favorite.VerticalAlignment = VerticalAlignment.Top;
+            favorite.Margin = new Thickness(0, 75 + 50 * i, 10, 0);
+            favorite.Tag = favorites[i];
+
+            String shortenedUrl = favorites[i].Substring(favorites[i].IndexOf('w') + 4, favorites[i].Length - (favorites[i].IndexOf('w') + 4)).ToUpper();
+            shortenedUrl = shortenedUrl.Substring(0, shortenedUrl.Length - (shortenedUrl.Length - shortenedUrl.IndexOf('.')));
+            favorite.Content = shortenedUrl;
+
+            favorite.Width = 205;
+            favorite.Height = 30;
+            favorite.HorizontalAlignment = HorizontalAlignment.Right;
+            favorite.Click += favorite_click;
+            Grid.Children.Add(favorite);
+        }
+
         private void favorite_click(object sender, RoutedEventArgs e)
         {
-            Button button = (Button)sender;
-            Object url = button.Content;
+            Button button = (Button) sender;
+            Object url = button.Tag;
             wvMain.Navigate(new Uri((string)url));
 
             updateTbUrl((string)url);
@@ -136,22 +149,34 @@ namespace WebBrowser
 
         private void btnFavoritesTemplate_Click(object sender, RoutedEventArgs e)
         {
-            String url = "https://www.amazon.com";
-            wvMain.Navigate(new Uri(url));
+            String url = tbUrl.Text;
 
-            updateTbUrl(url);
+            if (!favorites.Contains(url))
+            {
+                favorites.Add(url);
+                createFavButton(favorites.Count - 1);
+                btnAddFavorites.Margin = new Thickness(0, 75 + 50 * favorites.Count, 10, 0);
+            }
         }
 
         private void btnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            searchFunction();
+        }
+
+        private void searchFunction()
         {
             String url = tbUrl.Text;
             wvMain.Navigate(new Uri(url));
             updateTbUrl(url);
         }
 
-        private void wvMain_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void tbUrl_KeyUp(object sender, KeyRoutedEventArgs e)
         {
-
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                searchFunction();
+            }
         }
     }
 }
