@@ -4,19 +4,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:WebBrowser"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid x:Name="Grid">
         <Button x:Name="btnHome" Content="Home" Margin="10,10,0,0" VerticalAlignment="Top" Click="btnHome_Click"/>
-        <WebView x:Name="wvMain" Margin="0,50,0,0" HorizontalAlignment="Left" Width="1920" VerticalAlignment="Top" Height="1030"/>
-        <Button x:Name="btnBack" Content="Back" Margin="0,10,166,0" VerticalAlignment="Top" RenderTransformOrigin="2.122,0.375" HorizontalAlignment="Right"/>
-        <Button x:Name="btnForward" Content="Forward" Margin="0,10,90,0" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+        <controls:WebView2 x:Name="wvMain" Margin="0,50,0,0" HorizontalAlignment="Left" Width="1920" VerticalAlignment="Top" Height="1030" NavigationCompleted="wvMain_NavigationCompleted"/>
+        <Button x:Name="btnBack" Content="Back" Margin="0,10,166,0" VerticalAlignment="Top" RenderTransformOrigin="2.122,0.375" HorizontalAlignment="Right" Click="btnBack_Click"/>
+        <Button x:Name="btnForward" Content="Forward" Margin="0,10,90,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="btnForward_Click"/>
         <Button x:Name="btnFavorites" Content="Favorites" Margin="0,10,10,0" VerticalAlignment="Top" RenderTransformOrigin="2.587,-0.156" Click="btnFavorites_Click" HorizontalAlignment="Right"/>
-        <TextBox x:Name="tbUrl" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="317" TextChanged="tbUrl_TextChanged" KeyUp="tbUrl_KeyUp"/>
-        <Button x:Name="btnAddFavorites" Content="Button" Margin="0,50,10,0" VerticalAlignment="Top" Height="30" Width="205" Click="btnFavoritesTemplate_Click" RenderTransformOrigin="3.642,20.423" HorizontalAlignment="Right"/>
+        <TextBox x:Name="tbUrl" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="317" TextChanged="tbUrl_TextChanged" KeyUp="tbUrl_KeyUp" Height="32"/>
+        <Button x:Name="btnAddFavorites" Content="+" Margin="0,51,115,0" VerticalAlignment="Top" Height="30" Width="100" Click="btnAddFavorites_Click" RenderTransformOrigin="3.642,20.423" HorizontalAlignment="Right"/>
         <Button x:Name="btnSearch" Content="Search" Margin="380,10,0,0" VerticalAlignment="Top" Click="btnSearch_Click" HorizontalAlignment="Center"/>
+        <Button x:Name="btnRemoveFavorites" Content="-" Margin="0,51,10,0" VerticalAlignment="Top" Width="100" Height="30" HorizontalAlignment="Right" Click="btnRemoveFavorites_Click"/>
+        <TextBox x:Name="tbAddRemoveURL" HorizontalAlignment="Right" Margin="0,86,42,0" TextWrapping="Wrap" Text="https://www." VerticalAlignment="Top" Width="172" Height="32"/>
+        <Button x:Name="btnAddRemoveFavs" Content="✓" Margin="0,86,10,0" VerticalAlignment="Top" Width="32" Height="32" Click="btnAddRemoveFavs_Click" HorizontalAlignment="Right"/>
+        <Button x:Name="tbCopyCurrentURLFav" Content="Copy Current URL" Margin="0,123,10,0" VerticalAlignment="Top" Width="204" HorizontalAlignment="Right" Click="tbCopyCurrentURLFav_Click"/>
 
     </Grid>
 </Page>

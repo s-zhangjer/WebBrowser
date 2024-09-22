@@ -26,30 +26,32 @@ namespace WebBrowser
         String currentUrl;
         bool favoritesBar;
         List<String> favorites = new List<String>();
+        List<String> history = new List<String>();
+        int historyIndex = -1;
         bool favesFirstCreation = true;
+
+        bool backNavigate = false;
+        bool frontNavigate = false;
+        bool addCurrentFav = false;
+        bool removeCurrentFav = false;
         public MainPage()
         {
             this.InitializeComponent();
             tbUrl.Text = "https://www.";
             currentUrl = "";
-            favorites.Add("https://www.amazon.com");
-            favorites.Add("https://www.nasa.gov");
+            favorites.Add("https://www.amazon.com/");
+            favorites.Add("https://www.nasa.gov/");
             favoritesBar = false;
             wvMain.Width = 2560;
+            wvMain.Height = 1440;
+
             btnAddFavorites.Opacity = 0;
+            btnRemoveFavorites.Opacity = 0;
+            tbAddRemoveURL.Opacity = 0;
+            btnAddRemoveFavs.Opacity = 0;
+            tbCopyCurrentURLFav.Opacity = 0;
         }
 
-        private void TextBlock_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void btnHome_Click(object sender, RoutedEventArgs e)
-        {
-            String url = "https://www.yahoo.com";
-            wvMain.Navigate(new Uri(url));
-            updateTbUrl(url);
-        }
 
         private void updateTbUrl(String url)
         {
@@ -66,6 +68,16 @@ namespace WebBrowser
                 favoritesBar = false;
                 btnAddFavorites.Opacity = 0;
                 btnAddFavorites.IsEnabled = false;
+                btnRemoveFavorites.Opacity = 0;
+                btnRemoveFavorites.IsEnabled = false;
+                tbAddRemoveURL.Opacity = 0;
+                tbAddRemoveURL.IsEnabled = false;
+                btnAddRemoveFavs.Opacity = 0;
+                btnAddRemoveFavs.IsEnabled = false;
+                tbCopyCurrentURLFav.Opacity = 0;
+                tbCopyCurrentURLFav.IsEnabled = false;
+                addCurrentFav = false;
+                removeCurrentFav = false;
 
                 for (int i = 0; i < favorites.Count; i++)
                 {
@@ -85,7 +97,14 @@ namespace WebBrowser
                 favoritesBar = true;
                 btnAddFavorites.Opacity = 100;
                 btnAddFavorites.IsEnabled = true;
-                btnAddFavorites.Margin = new Thickness(0, 75 + 50 * favorites.Count, 10, 0);
+                btnAddFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 115, 0);
+                btnRemoveFavorites.Opacity = 100;
+                btnRemoveFavorites.IsEnabled = true;
+                btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
+
+                tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
+                btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
+                tbCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
 
                 favorite.Opacity = 100;
 
@@ -119,12 +138,27 @@ namespace WebBrowser
             Button favorite = new Button();
             favorite.Name = "favorite" + i;
             favorite.VerticalAlignment = VerticalAlignment.Top;
-            favorite.Margin = new Thickness(0, 75 + 50 * i, 10, 0);
+            favorite.Margin = new Thickness(0, 75 + 40 * i, 10, 0);
             favorite.Tag = favorites[i];
 
-            String shortenedUrl = favorites[i].Substring(favorites[i].IndexOf('w') + 4, favorites[i].Length - (favorites[i].IndexOf('w') + 4)).ToUpper();
-            shortenedUrl = shortenedUrl.Substring(0, shortenedUrl.Length - (shortenedUrl.Length - shortenedUrl.IndexOf('.')));
-            favorite.Content = shortenedUrl;
+            btnAddFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 115, 0);
+            btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
+            tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
+            btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
+            tbCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
+
+            if (favorites[i].Contains("www")){
+                String shortenedUrl = favorites[i].Substring(favorites[i].IndexOf('w') + 4, favorites[i].Length - (favorites[i].IndexOf('w') + 4));
+                shortenedUrl = shortenedUrl.Substring(0, shortenedUrl.Length - (shortenedUrl.Length - shortenedUrl.IndexOf('.')));
+                shortenedUrl = shortenedUrl.Substring(0, 1).ToUpper() + shortenedUrl.Substring(1).ToLower();
+                favorite.Content = shortenedUrl;
+            } else
+            {
+                String shortenedUrl = favorites[i].Substring(favorites[i].IndexOf('/') + 2, favorites[i].Length - (favorites[i].IndexOf('/') + 4));
+                shortenedUrl = shortenedUrl.Substring(0, shortenedUrl.Length - (shortenedUrl.Length - shortenedUrl.IndexOf('.')));
+                shortenedUrl = shortenedUrl.Substring(0, 1).ToUpper() + shortenedUrl.Substring(1).ToLower();
+                favorite.Content = shortenedUrl;
+            }
 
             favorite.Width = 205;
             favorite.Height = 30;
@@ -137,25 +171,162 @@ namespace WebBrowser
         {
             Button button = (Button) sender;
             Object url = button.Tag;
-            wvMain.Navigate(new Uri((string)url));
+            wvMain.Source = (new Uri((string)url));
 
             updateTbUrl((string)url);
         }
 
-        private void tbUrl_TextChanged(object sender, TextChangedEventArgs e)
+        private void btnAddRemoveFavs_Click(object sender, RoutedEventArgs e)
         {
+            if(addCurrentFav)
+            {
+                String url = tbAddRemoveURL.Text;
+
+                if (!favorites.Contains(url))
+                {
+                    favorites.Add(url + "/");
+                    createFavButton(favorites.Count - 1);
+                }
+
+                tbAddRemoveURL.Text = "https://www.";
+            }
+
+            else if (removeCurrentFav)
+            {
+                String url = tbAddRemoveURL.Text;
+
+                if (favorites.Contains(url))
+                {
+                    removeFavoriteBtn(url);
+                }
+
+                tbAddRemoveURL.Text = "https://www.";
+            }
+        }
+
+        public void removeFavoriteBtn(String url)
+        {
+            for (int i = 0; i < favorites.Count; i++)
+            {
+                Object findBtn = Grid.FindName("favorite" + i);
+                if (findBtn is Button)
+                {
+                    Button found = findBtn as Button;
+                    Grid.Children.Remove(found);
+                }
+            }
+
+            favorites.Remove(url);
+
+            for (int i = 0; i < favorites.Count; i++)
+            {
+                Object findBtn = Grid.FindName("favorite" + i);
+                if (findBtn is Button)
+                {
+                    Button found = findBtn as Button;
+                    Grid.Children.Remove(found);
+                }
+            }
+
+            for (int i = 0; i < favorites.Count; i++)
+            {
+                createFavButton(i);
+            }
+
+
+            btnAddFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 115, 0);
+            btnRemoveFavorites.Opacity = 100;
+            btnRemoveFavorites.IsEnabled = true;
+            btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
+
+            tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
+            btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
+        }
+
+        private void btnAddFavorites_Click(object sender, RoutedEventArgs e)
+        {
+            if (!addCurrentFav)
+            {
+                tbAddRemoveURL.Opacity = 100;
+                tbAddRemoveURL.IsEnabled = true;
+
+                btnAddRemoveFavs.Opacity = 100;
+                btnAddRemoveFavs.IsEnabled = true;
+
+                tbCopyCurrentURLFav.Opacity = 100;
+                tbCopyCurrentURLFav.IsEnabled = true;
+
+                addCurrentFav = true;
+                removeCurrentFav = false;
+            }
+            else
+            {
+                tbAddRemoveURL.Opacity = 0;
+                tbAddRemoveURL.IsEnabled = false;
+
+                btnAddRemoveFavs.Opacity = 0;
+                btnAddRemoveFavs.IsEnabled = false;
+
+                tbCopyCurrentURLFav.Opacity = 0;
+                tbCopyCurrentURLFav.IsEnabled = false;
+
+                addCurrentFav = false;
+                removeCurrentFav = false;
+            }
 
         }
 
-        private void btnFavoritesTemplate_Click(object sender, RoutedEventArgs e)
+        private void btnRemoveFavorites_Click(object sender, RoutedEventArgs e)
         {
-            String url = tbUrl.Text;
-
-            if (!favorites.Contains(url))
+            if (!removeCurrentFav)
             {
-                favorites.Add(url);
-                createFavButton(favorites.Count - 1);
-                btnAddFavorites.Margin = new Thickness(0, 75 + 50 * favorites.Count, 10, 0);
+                tbAddRemoveURL.Opacity = 100;
+                tbAddRemoveURL.IsEnabled = true;
+
+                btnAddRemoveFavs.Opacity = 100;
+                btnAddRemoveFavs.IsEnabled = true;
+
+                tbCopyCurrentURLFav.Opacity = 100;
+                tbCopyCurrentURLFav.IsEnabled = true;
+
+                removeCurrentFav = true;
+                addCurrentFav = false;
+            }
+            else
+            {
+                tbAddRemoveURL.Opacity = 0;
+                tbAddRemoveURL.IsEnabled = false;
+
+                btnAddRemoveFavs.Opacity = 0;
+                btnAddRemoveFavs.IsEnabled = false;
+
+                tbCopyCurrentURLFav.Opacity = 0;
+                tbCopyCurrentURLFav.IsEnabled = false;
+
+                removeCurrentFav = false;
+                addCurrentFav = false;
+            }
+        }
+
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (history.Count() > 0 && historyIndex > 0)
+            {
+                historyIndex--;
+                String url = history[historyIndex];
+                wvMain.Source = new Uri(url);
+                backNavigate = true;
+            }
+        }
+
+        private void btnForward_Click(object sender, RoutedEventArgs e)
+        {
+            if (history.Count() > 0 && historyIndex < history.Count() - 1)
+            {
+                historyIndex++;
+                String url = history[historyIndex];
+                wvMain.Source = new Uri(url);
+                frontNavigate = true;
             }
         }
 
@@ -167,7 +338,7 @@ namespace WebBrowser
         private void searchFunction()
         {
             String url = tbUrl.Text;
-            wvMain.Navigate(new Uri(url));
+            wvMain.Source = (new Uri(url));
             updateTbUrl(url);
         }
 
@@ -177,6 +348,46 @@ namespace WebBrowser
             {
                 searchFunction();
             }
+        }
+
+        private void btnHome_Click(object sender, RoutedEventArgs e)
+        {
+            String url = "https://www.yahoo.com";
+            wvMain.Source = (new Uri(url));
+            updateTbUrl(url);
+        }
+
+        private void tbCopyCurrentURLFav_Click(object sender, RoutedEventArgs e)
+        {
+            tbAddRemoveURL.Text = tbUrl.Text;
+        }
+
+        private void wvMain_NavigationCompleted(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs args)
+        {
+            String url = wvMain.Source.ToString();
+            tbUrl.Text = url;
+
+            if (!backNavigate && !frontNavigate)
+            {
+                history.Insert(historyIndex + 1, url);
+                historyIndex++;
+            }
+            else
+            {
+                backNavigate = false;
+                frontNavigate = false;
+            }
+        }
+
+        private void wvMain_NavigationStarting(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs args)
+        {
+        }
+
+        private void TextBlock_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+        }
+        private void tbUrl_TextChanged(object sender, TextChangedEventArgs e)
+        {
         }
     }
 }
