@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Core;
@@ -39,8 +40,6 @@ namespace WebBrowser
             this.InitializeComponent();
             tbUrl.Text = "https://www.";
             currentUrl = "";
-            favorites.Add("https://www.amazon.com/");
-            favorites.Add("https://www.nasa.gov/");
             favoritesBar = false;
             wvMain.Width = 2560;
             wvMain.Height = 1440;
@@ -50,6 +49,7 @@ namespace WebBrowser
             tbAddRemoveURL.Opacity = 0;
             btnAddRemoveFavs.Opacity = 0;
             tbCopyCurrentURLFav.Opacity = 0;
+            btnSaveFavorites.Opacity = 0;
         }
 
 
@@ -78,6 +78,8 @@ namespace WebBrowser
                 tbCopyCurrentURLFav.IsEnabled = false;
                 addCurrentFav = false;
                 removeCurrentFav = false;
+                btnSaveFavorites.Opacity = 0;
+                btnSaveFavorites.IsEnabled = false;
 
                 for (int i = 0; i < favorites.Count; i++)
                 {
@@ -101,6 +103,7 @@ namespace WebBrowser
                 btnRemoveFavorites.Opacity = 100;
                 btnRemoveFavorites.IsEnabled = true;
                 btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
+                btnSaveFavorites.Opacity = 100;
 
                 tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
                 btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
@@ -184,7 +187,13 @@ namespace WebBrowser
 
                 if (!favorites.Contains(url))
                 {
-                    favorites.Add(url + "/");
+                    if(!url.Substring(url.Length - 2, 1).Equals("/")){
+                        favorites.Add(url + "/");
+                    }
+                    else
+                    {
+                        favorites.Add(url);
+                    }
                     createFavButton(favorites.Count - 1);
                 }
 
@@ -378,6 +387,78 @@ namespace WebBrowser
                 frontNavigate = false;
             }
         }
+        private void wvMain_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadSaveData();
+        }
+
+        private void btnSaveFavorites_Click(object sender, RoutedEventArgs e)
+        {
+            saveFile();
+        }
+
+        public async Task<String> saveFile()
+        {
+            Windows.Storage.StorageFolder storageFolder =
+                    Windows.Storage.ApplicationData.Current.LocalFolder;
+            Windows.Storage.StorageFile savedFavoritesFile =
+                    await storageFolder.CreateFileAsync("savedFavorites.txt",
+                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
+            String data = getSaveData();
+
+            await Windows.Storage.FileIO.WriteTextAsync(savedFavoritesFile, data);
+
+            return data;
+        }
+
+        public String getSaveData()
+        {
+            String favoritesString = "";
+            for(int i = 0; i < favorites.Count; i++)
+            {
+                favoritesString += favorites[i].ToString() + "\n";
+            }
+            return favoritesString.Substring(0, favoritesString.Length - 1);
+        }
+
+        private async void LoadSaveData()
+        {
+            try
+            {
+                Windows.Storage.StorageFolder storageFolder =
+                        Windows.Storage.ApplicationData.Current.LocalFolder;
+                Windows.Storage.StorageFile savedFavoritesFile =
+                    await storageFolder.GetFileAsync("savedFavorites.txt");
+
+                string text = await Windows.Storage.FileIO.ReadTextAsync(savedFavoritesFile);
+
+                String[] favoritesString = text.Split('\n');
+                if(favoritesString.Length < 2)
+                {
+                    favorites.Insert(0, "https://www.amazon.com/");
+                    favorites.Insert(1, "https://www.nasa.gov/");
+                }
+
+                else if (!favoritesString.Contains("https://www.amazon.com/"))
+                {
+                    favorites.Insert(0, "https://www.amazon.com/");
+                    if(!favoritesString.Contains("https://www.nasa.gov/"))
+                    {
+                        favorites.Insert(1, "https://www.nasa.gov/");
+                    }
+                }
+                foreach (var line in favoritesString)
+                {
+                    favorites.Add(line.Trim());
+                }
+            }
+            catch (Exception)
+            {
+                // This is just in case the file doesn't exist
+                // this is important on the FIRST run, and in case something goes wrong!
+            }
+        }
+
 
         private void wvMain_NavigationStarting(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs args)
         {
