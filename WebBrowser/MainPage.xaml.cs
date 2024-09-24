@@ -48,7 +48,7 @@ namespace WebBrowser
             btnRemoveFavorites.Opacity = 0;
             tbAddRemoveURL.Opacity = 0;
             btnAddRemoveFavs.Opacity = 0;
-            tbCopyCurrentURLFav.Opacity = 0;
+            btnCopyCurrentURLFav.Opacity = 0;
             btnSaveFavorites.Opacity = 0;
         }
 
@@ -74,8 +74,8 @@ namespace WebBrowser
                 tbAddRemoveURL.IsEnabled = false;
                 btnAddRemoveFavs.Opacity = 0;
                 btnAddRemoveFavs.IsEnabled = false;
-                tbCopyCurrentURLFav.Opacity = 0;
-                tbCopyCurrentURLFav.IsEnabled = false;
+                btnCopyCurrentURLFav.Opacity = 0;
+                btnCopyCurrentURLFav.IsEnabled = false;
                 addCurrentFav = false;
                 removeCurrentFav = false;
                 btnSaveFavorites.Opacity = 0;
@@ -104,10 +104,11 @@ namespace WebBrowser
                 btnRemoveFavorites.IsEnabled = true;
                 btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
                 btnSaveFavorites.Opacity = 100;
+                btnSaveFavorites.IsEnabled = true;
 
                 tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
                 btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
-                tbCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
+                btnCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
 
                 favorite.Opacity = 100;
 
@@ -148,14 +149,16 @@ namespace WebBrowser
             btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
             tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
             btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
-            tbCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
+            btnCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
 
-            if (favorites[i].Contains("www")){
+            if (favorites[i].Contains("www"))
+            {
                 String shortenedUrl = favorites[i].Substring(favorites[i].IndexOf('w') + 4, favorites[i].Length - (favorites[i].IndexOf('w') + 4));
                 shortenedUrl = shortenedUrl.Substring(0, shortenedUrl.Length - (shortenedUrl.Length - shortenedUrl.IndexOf('.')));
                 shortenedUrl = shortenedUrl.Substring(0, 1).ToUpper() + shortenedUrl.Substring(1).ToLower();
                 favorite.Content = shortenedUrl;
-            } else
+            }
+            else
             {
                 String shortenedUrl = favorites[i].Substring(favorites[i].IndexOf('/') + 2, favorites[i].Length - (favorites[i].IndexOf('/') + 4));
                 shortenedUrl = shortenedUrl.Substring(0, shortenedUrl.Length - (shortenedUrl.Length - shortenedUrl.IndexOf('.')));
@@ -185,15 +188,14 @@ namespace WebBrowser
             {
                 String url = tbAddRemoveURL.Text;
 
+                if (!url.Substring(url.Length - 1, 1).Equals("/"))
+                {
+                    url += "/";
+                }
+
                 if (!favorites.Contains(url))
                 {
-                    if(!url.Substring(url.Length - 2, 1).Equals("/")){
-                        favorites.Add(url + "/");
-                    }
-                    else
-                    {
-                        favorites.Add(url);
-                    }
+                    favorites.Add(url);
                     createFavButton(favorites.Count - 1);
                 }
 
@@ -203,6 +205,11 @@ namespace WebBrowser
             else if (removeCurrentFav)
             {
                 String url = tbAddRemoveURL.Text;
+
+                if (!url.Substring(url.Length - 1, 1).Equals("/"))
+                {
+                    url += "/";
+                }
 
                 if (favorites.Contains(url))
                 {
@@ -215,6 +222,7 @@ namespace WebBrowser
 
         public void removeFavoriteBtn(String url)
         {
+
             for (int i = 0; i < favorites.Count; i++)
             {
                 Object findBtn = Grid.FindName("favorite" + i);
@@ -229,16 +237,6 @@ namespace WebBrowser
 
             for (int i = 0; i < favorites.Count; i++)
             {
-                Object findBtn = Grid.FindName("favorite" + i);
-                if (findBtn is Button)
-                {
-                    Button found = findBtn as Button;
-                    Grid.Children.Remove(found);
-                }
-            }
-
-            for (int i = 0; i < favorites.Count; i++)
-            {
                 createFavButton(i);
             }
 
@@ -250,6 +248,7 @@ namespace WebBrowser
 
             tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
             btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
+            btnCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
         }
 
         private void btnAddFavorites_Click(object sender, RoutedEventArgs e)
@@ -262,8 +261,8 @@ namespace WebBrowser
                 btnAddRemoveFavs.Opacity = 100;
                 btnAddRemoveFavs.IsEnabled = true;
 
-                tbCopyCurrentURLFav.Opacity = 100;
-                tbCopyCurrentURLFav.IsEnabled = true;
+                btnCopyCurrentURLFav.Opacity = 100;
+                btnCopyCurrentURLFav.IsEnabled = true;
 
                 addCurrentFav = true;
                 removeCurrentFav = false;
@@ -276,8 +275,8 @@ namespace WebBrowser
                 btnAddRemoveFavs.Opacity = 0;
                 btnAddRemoveFavs.IsEnabled = false;
 
-                tbCopyCurrentURLFav.Opacity = 0;
-                tbCopyCurrentURLFav.IsEnabled = false;
+                btnCopyCurrentURLFav.Opacity = 0;
+                btnCopyCurrentURLFav.IsEnabled = false;
 
                 addCurrentFav = false;
                 removeCurrentFav = false;
@@ -295,8 +294,8 @@ namespace WebBrowser
                 btnAddRemoveFavs.Opacity = 100;
                 btnAddRemoveFavs.IsEnabled = true;
 
-                tbCopyCurrentURLFav.Opacity = 100;
-                tbCopyCurrentURLFav.IsEnabled = true;
+                btnCopyCurrentURLFav.Opacity = 100;
+                btnCopyCurrentURLFav.IsEnabled = true;
 
                 removeCurrentFav = true;
                 addCurrentFav = false;
@@ -309,8 +308,8 @@ namespace WebBrowser
                 btnAddRemoveFavs.Opacity = 0;
                 btnAddRemoveFavs.IsEnabled = false;
 
-                tbCopyCurrentURLFav.Opacity = 0;
-                tbCopyCurrentURLFav.IsEnabled = false;
+                btnCopyCurrentURLFav.Opacity = 0;
+                btnCopyCurrentURLFav.IsEnabled = false;
 
                 removeCurrentFav = false;
                 addCurrentFav = false;
@@ -366,7 +365,7 @@ namespace WebBrowser
             updateTbUrl(url);
         }
 
-        private void tbCopyCurrentURLFav_Click(object sender, RoutedEventArgs e)
+        private void btnCopyCurrentURLFav_Click(object sender, RoutedEventArgs e)
         {
             tbAddRemoveURL.Text = tbUrl.Text;
         }
@@ -433,20 +432,16 @@ namespace WebBrowser
                 string text = await Windows.Storage.FileIO.ReadTextAsync(savedFavoritesFile);
 
                 String[] favoritesString = text.Split('\n');
-                if(favoritesString.Length < 2)
-                {
-                    favorites.Insert(0, "https://www.amazon.com/");
-                    favorites.Insert(1, "https://www.nasa.gov/");
-                }
 
-                else if (!favoritesString.Contains("https://www.amazon.com/"))
+                if (!favoritesString.Contains("https://www.nasa.gov/"))
+                {
+                    favorites.Insert(0, "https://www.nasa.gov/");
+                }
+                if (!favoritesString.Contains("https://www.amazon.com/"))
                 {
                     favorites.Insert(0, "https://www.amazon.com/");
-                    if(!favoritesString.Contains("https://www.nasa.gov/"))
-                    {
-                        favorites.Insert(1, "https://www.nasa.gov/");
-                    }
                 }
+                
                 foreach (var line in favoritesString)
                 {
                     favorites.Add(line.Trim());
@@ -457,6 +452,17 @@ namespace WebBrowser
                 // This is just in case the file doesn't exist
                 // this is important on the FIRST run, and in case something goes wrong!
             }
+
+            if (!favorites.Contains("https://www.nasa.gov/"))
+            {
+                favorites.Insert(0, "https://www.nasa.gov/");
+            }
+            if (!favorites.Contains("https://www.amazon.com/"))
+            {
+                favorites.Insert(0, "https://www.amazon.com/");
+            }
+
+            favorites.Remove("");
         }
 
 
@@ -470,5 +476,6 @@ namespace WebBrowser
         private void tbUrl_TextChanged(object sender, TextChangedEventArgs e)
         {
         }
+
     }
 }
