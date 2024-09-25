@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -50,6 +51,8 @@ namespace WebBrowser
             btnAddRemoveFavs.Opacity = 0;
             btnCopyCurrentURLFav.Opacity = 0;
             btnSaveFavorites.Opacity = 0;
+            btnSaveHistory.Opacity = 0;
+            btnClearHistory.Opacity = 0;
         }
 
 
@@ -80,6 +83,10 @@ namespace WebBrowser
                 removeCurrentFav = false;
                 btnSaveFavorites.Opacity = 0;
                 btnSaveFavorites.IsEnabled = false;
+                btnSaveHistory.Opacity = 0;
+                btnSaveHistory.IsEnabled = false;
+                btnClearHistory.Opacity = 0;
+                btnClearHistory.IsEnabled = false;
 
                 for (int i = 0; i < favorites.Count; i++)
                 {
@@ -105,10 +112,17 @@ namespace WebBrowser
                 btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
                 btnSaveFavorites.Opacity = 100;
                 btnSaveFavorites.IsEnabled = true;
+                btnSaveHistory.Opacity = 100;
+                btnSaveHistory.IsEnabled = true;
+                btnClearHistory.Opacity = 100;
+                btnClearHistory.IsEnabled = true;
 
                 tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
                 btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
                 btnCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
+                btnSaveFavorites.Margin = new Thickness(0, 0, 10, 45);
+                btnSaveHistory.Margin = new Thickness(0, 0, 10, 10);
+                btnClearHistory.Margin = new Thickness(0, 0, 10, 80);
 
                 favorite.Opacity = 100;
 
@@ -389,28 +403,29 @@ namespace WebBrowser
         private void wvMain_Loaded(object sender, RoutedEventArgs e)
         {
             LoadSaveData();
+            LoadSavedHistoryData();
         }
 
         private void btnSaveFavorites_Click(object sender, RoutedEventArgs e)
         {
-            saveFile();
+            saveFavoritesFile();
         }
 
-        public async Task<String> saveFile()
+        public async Task<String> saveFavoritesFile()
         {
             Windows.Storage.StorageFolder storageFolder =
                     Windows.Storage.ApplicationData.Current.LocalFolder;
             Windows.Storage.StorageFile savedFavoritesFile =
                     await storageFolder.CreateFileAsync("savedFavorites.txt",
                     Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            String data = getSaveData();
+            String data = getFavoritesSaveData();
 
             await Windows.Storage.FileIO.WriteTextAsync(savedFavoritesFile, data);
 
             return data;
         }
 
-        public String getSaveData()
+        public String getFavoritesSaveData()
         {
             String favoritesString = "";
             for(int i = 0; i < favorites.Count; i++)
@@ -418,6 +433,35 @@ namespace WebBrowser
                 favoritesString += favorites[i].ToString() + "\n";
             }
             return favoritesString.Substring(0, favoritesString.Length - 1);
+        }
+
+        private void btnSaveHistory_Click(object sender, RoutedEventArgs e)
+        {
+            saveHistoryFile();
+        }
+
+        public async Task<String> saveHistoryFile()
+        {
+            Windows.Storage.StorageFolder storageFolder =
+                    Windows.Storage.ApplicationData.Current.LocalFolder;
+            Windows.Storage.StorageFile savedHistoryFile =
+                    await storageFolder.CreateFileAsync("savedHistory.txt",
+                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
+            String data = getHistorySaveData();
+
+            await Windows.Storage.FileIO.WriteTextAsync(savedHistoryFile, data);
+
+            return data;
+        }
+
+        public String getHistorySaveData()
+        {
+            String historyString = "";
+            for (int i = 0; i < history.Count; i++)
+            {
+                historyString += history[i].ToString() + "\n";
+            }
+            return historyString.Substring(0, historyString.Length - 1);
         }
 
         private async void LoadSaveData()
@@ -429,9 +473,9 @@ namespace WebBrowser
                 Windows.Storage.StorageFile savedFavoritesFile =
                     await storageFolder.GetFileAsync("savedFavorites.txt");
 
-                string text = await Windows.Storage.FileIO.ReadTextAsync(savedFavoritesFile);
+                string favoritesText = await Windows.Storage.FileIO.ReadTextAsync(savedFavoritesFile);
 
-                String[] favoritesString = text.Split('\n');
+                String[] favoritesString = favoritesText.Split('\n');
 
                 if (!favoritesString.Contains("https://www.nasa.gov/"))
                 {
@@ -465,6 +509,33 @@ namespace WebBrowser
             favorites.Remove("");
         }
 
+        private async void LoadSavedHistoryData()
+        {
+            try
+            {
+                Windows.Storage.StorageFolder storageFolder =
+                    Windows.Storage.ApplicationData.Current.LocalFolder;
+                Windows.Storage.StorageFile savedHistoryFile =
+                    await storageFolder.GetFileAsync("savedHistory.txt");
+                string historyText = await Windows.Storage.FileIO.ReadTextAsync(savedHistoryFile);
+                String[] historyString = historyText.Split('\n');
+
+                foreach (var line in historyString)
+                {
+                    history.Add(line.Trim());
+                }
+            }
+            catch 
+            { 
+            }
+            history.Remove("");
+        }
+
+        private void btnClearHistory_Click(object sender, RoutedEventArgs e)
+        {
+            history = new List<string>();
+            historyIndex = -1;
+        }
 
         private void wvMain_NavigationStarting(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs args)
         {
@@ -476,6 +547,5 @@ namespace WebBrowser
         private void tbUrl_TextChanged(object sender, TextChangedEventArgs e)
         {
         }
-
     }
 }
