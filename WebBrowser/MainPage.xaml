@@ -24,8 +24,8 @@
         <Button x:Name="btnSaveFavorites" Content="Save Favorites" Margin="0,0,10,46" VerticalAlignment="Bottom" RenderTransformOrigin="-0.016,-1.5" Width="204" HorizontalAlignment="Right" Click="btnSaveFavorites_Click"/>
         <Button x:Name="btnSaveHistory" Content="Save History" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="204" Click="btnSaveHistory_Click" HorizontalAlignment="Right"/>
         <Button Content="Button" Margin="1939,983,0,0" VerticalAlignment="Top" Width="0"/>
-        <Button x:Name="btnClearHistory" Content="Clear History" Margin="0,0,9,82" VerticalAlignment="Bottom" Width="205" Click="btnClearHistory_Click" HorizontalAlignment="Right"/>
-        <Button x:Name="btnClearFavorites" Content="Clear Favorites" VerticalAlignment="Bottom" Width="205" Click="btnClearFavorites_Click" HorizontalAlignment="Right" Margin="0,0,10,118"/>
+        <Button x:Name="btnClearHistory" Content="Clear History" Margin="0,0,9,82" VerticalAlignment="Bottom" Width="204" Click="btnClearHistory_Click" HorizontalAlignment="Right"/>
+        <Button x:Name="btnClearFavorites" Content="Clear Favorites" VerticalAlignment="Bottom" Width="204" Click="btnClearFavorites_Click" HorizontalAlignment="Right" Margin="0,0,10,118"/>
         <Button x:Name="btnRefresh" Content="↻" Margin="0,10,350,0" VerticalAlignment="Top" HorizontalAlignment="Center" Click="btnRefresh_Click"/>
         <ListView x:Name="lstHistory" Background="Black" ItemClick="ListView_ItemClick" Margin="0,0,250,10" HorizontalAlignment="Right" Width="204" VerticalAlignment="Bottom" Height="500" Tapped="lstHistory_Tapped"/>
         <Button x:Name="btnShowHistory" Content="Show History" VerticalAlignment="Bottom" Width="204" Click="btnShowHistory_Click" HorizontalAlignment="Right" Margin="0,0,10,155"/>
@@ -35,6 +35,7 @@
         <TextBox x:Name="tbHomepage" HorizontalAlignment="Left" Margin="10,139,0,0" TextWrapping="Wrap" Text="https://" VerticalAlignment="Top" Width="171" Height="32"/>
         <Button x:Name="btnCopyHomepage" Content="⧉" Margin="179,140,0,0" VerticalAlignment="Top" Click="btnCopyHomepage_Click"/>
         <Button x:Name="btnSetHomepage" Content="Set Homepage" Margin="10,172,0,0" VerticalAlignment="Top" Width="204" Click="btnSetHomepage_Click"/>
+        <Button x:Name="btnSaveSettings" Content="Save Settings" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="204" Click="btnSaveSettings_Click"/>
 
     </Grid>
 </Page>

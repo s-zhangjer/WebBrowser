@@ -39,6 +39,7 @@ namespace WebBrowser
         bool frontNavigate = false;
         bool refreshNavigate = false;
         bool lstHistoryNavigate = false;
+        bool homepageNavigate = false;
 
         bool addCurrentFav = false;
         bool removeCurrentFav = false;
@@ -55,7 +56,7 @@ namespace WebBrowser
             currentUrl = "";
             favoritesBar = false;
             wvMain.Width = 2560;
-            wvMain.Height = 1440;
+            wvMain.Height = 1390;
 
             btnAddFavorites.Opacity = 0;
             btnRemoveFavorites.Opacity = 0;
@@ -74,6 +75,7 @@ namespace WebBrowser
             tbHomepage.Opacity = 0;
             btnCopyHomepage.Opacity = 0;
             btnSetHomepage.Opacity = 0;
+            btnSaveSettings.Opacity = 0;
         }
 
 
@@ -394,6 +396,9 @@ namespace WebBrowser
         private void searchFunction()
         {
             String url = tbUrl.Text;
+            if (!url.StartsWith("https://")){
+                url = "https://" + url;
+            }
             wvMain.Source = (new Uri(url));
             updateTbUrl(url);
         }
@@ -411,6 +416,7 @@ namespace WebBrowser
             String url = homepageUrl;
             wvMain.Source = (new Uri(url));
             updateTbUrl(url);
+            homepageNavigate = true;
         }
 
         private void btnCopyCurrentURLFav_Click(object sender, RoutedEventArgs e)
@@ -423,7 +429,7 @@ namespace WebBrowser
             String url = wvMain.Source.ToString();
             tbUrl.Text = url;
 
-            if (!backNavigate && !frontNavigate && !firstLoadFromHistory && !refreshNavigate && !lstHistoryNavigate)
+            if (!backNavigate && !frontNavigate && !firstLoadFromHistory && !refreshNavigate && !lstHistoryNavigate && !homepageNavigate)
             {
                 history.Insert(historyIndex + 1, url);
                 historyIndex++;
@@ -437,6 +443,7 @@ namespace WebBrowser
                 firstLoadFromHistory = false;
                 refreshNavigate = false;
                 lstHistoryNavigate = false;
+                homepageNavigate = false;
             }
         }
 
@@ -452,7 +459,7 @@ namespace WebBrowser
         {
             LoadSaveData();
             LoadSavedHistoryData();
-            LoadSavedHomepageData();
+            LoadSavedSettingsData();
         }
 
         private void btnSaveFavorites_Click(object sender, RoutedEventArgs e)
@@ -460,23 +467,33 @@ namespace WebBrowser
             saveFavoritesFile();
         }
 
-        public async Task<String> saveHomepageFile()
+        public async Task<String> saveSettingsFile()
         {
             Windows.Storage.StorageFolder storageFolder =
                     Windows.Storage.ApplicationData.Current.LocalFolder;
             Windows.Storage.StorageFile savedHomepageFile =
                     await storageFolder.CreateFileAsync("savedHomepage.txt",
                     Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            String data = getHomepageSaveData();
+            String data = getSettingsSaveData();
 
             await Windows.Storage.FileIO.WriteTextAsync(savedHomepageFile, data);
 
             return data;
         }
 
-        public String getHomepageSaveData()
+        public String getSettingsSaveData()
         {
-            return homepageUrl;
+            String save = "";
+            Color bgColor = (Grid.Background as SolidColorBrush).Color;
+            int rInt = bgColor.R;
+            int gInt = bgColor.G;
+            int bInt = bgColor.B;
+            save += rInt + "\n";
+            save += gInt + "\n";
+            save += bInt + "\n";
+            save += homepageUrl;
+
+            return save;
         }
 
         public async Task<String> saveFavoritesFile()
@@ -607,7 +624,7 @@ namespace WebBrowser
             }
         }
 
-        private async void LoadSavedHomepageData()
+        private async void LoadSavedSettingsData()
         {
             try
             {
@@ -617,7 +634,12 @@ namespace WebBrowser
                     await storageFolder.GetFileAsync("savedHomepage.txt");
                 string homepageText = await Windows.Storage.FileIO.ReadTextAsync(savedHomepageFile);
 
-                homepageUrl = homepageText;
+                String[] settingsString = homepageText.Split('\n');
+
+                Color bgColor = Color.FromArgb(255, (byte) Int32.Parse(settingsString[0]), (byte)Int32.Parse(settingsString[1]), (byte)Int32.Parse(settingsString[2]));
+                Grid.Background = new SolidColorBrush(bgColor);
+
+                homepageUrl = (settingsString[3]);
             }
             catch
             {
@@ -737,7 +759,6 @@ namespace WebBrowser
         private void btnSetHomepage_Click(object sender, RoutedEventArgs e)
         {
             homepageUrl = tbHomepage.Text;
-            saveHomepageFile();
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
@@ -758,6 +779,8 @@ namespace WebBrowser
                 btnCopyHomepage.IsEnabled = false;
                 btnSetHomepage.Opacity = 0;
                 btnSetHomepage.IsEnabled = false;
+                btnSaveSettings.Opacity = 0;
+                btnSaveSettings.IsEnabled = false;
 
             }
             else
@@ -776,7 +799,14 @@ namespace WebBrowser
                 btnCopyHomepage.IsEnabled = true;
                 btnSetHomepage.Opacity = 100;
                 btnSetHomepage.IsEnabled = true;
+                btnSaveSettings.Opacity = 100;
+                btnSaveSettings.IsEnabled = true;
             }
+        }
+
+        private void btnSaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            saveSettingsFile();
         }
     }
 }
