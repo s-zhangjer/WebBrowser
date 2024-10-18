@@ -645,7 +645,7 @@ namespace WebBrowser
             {
             }
 
-            if(homepageUrl.Equals(""))
+            if (homepageUrl.Equals("") || !(Uri.IsWellFormedUriString(homepageUrl, UriKind.Absolute)))
             {
                 homepageUrl = "https://www.yahoo.com/";
             }
