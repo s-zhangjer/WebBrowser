@@ -27,7 +27,7 @@
         <Button x:Name="btnClearHistory" Content="Clear History" Margin="0,0,9,82" VerticalAlignment="Bottom" Width="204" Click="btnClearHistory_Click" HorizontalAlignment="Right"/>
         <Button x:Name="btnClearFavorites" Content="Clear Favorites" VerticalAlignment="Bottom" Width="204" Click="btnClearFavorites_Click" HorizontalAlignment="Right" Margin="0,0,10,118"/>
         <Button x:Name="btnRefresh" Content="↻" Margin="0,10,350,0" VerticalAlignment="Top" HorizontalAlignment="Center" Click="btnRefresh_Click"/>
-        <ListView x:Name="lstHistory" Background="Black" ItemClick="ListView_ItemClick" Margin="0,0,250,10" HorizontalAlignment="Right" Width="204" VerticalAlignment="Bottom" Height="500" Tapped="lstHistory_Tapped"/>
+        <ListView x:Name="lstHistory" Background="#EEEEEE" ItemClick="ListView_ItemClick" Margin="0,0,250,10" HorizontalAlignment="Right" Width="204" VerticalAlignment="Bottom" Height="500" Tapped="lstHistory_Tapped"/>
         <Button x:Name="btnShowHistory" Content="Show History" VerticalAlignment="Bottom" Width="204" Click="btnShowHistory_Click" HorizontalAlignment="Right" Margin="0,0,10,155"/>
         <Button x:Name="btnSettings" Content="Settings" Margin="73,10,0,0" VerticalAlignment="Top" Click="btnSettings_Click"/>
         <Button x:Name="btnChangeBg" Content="Change Background Color" Margin="10,92,0,0" VerticalAlignment="Top" Width="204" Click="btnChangeBg_Click"/>
