@@ -33,6 +33,7 @@
         <Button x:Name="btnSaveSettings" Content="Save Settings" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="204" Click="btnSaveSettings_Click"/>
         <Button x:Name="btnUIBigger" Content="+" Margin="10,185,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.215,-0.091" Click="btnUIBigger_Click"/>
         <Button x:Name="btnUISmaller" Content="-" Margin="50,185,0,0" VerticalAlignment="Top" Click="btnUISmaller_Click"/>
+        <Grid x:Name="gridFavorites" Margin="1675,0,0,0"/>
 
     </Grid>
 </Page>

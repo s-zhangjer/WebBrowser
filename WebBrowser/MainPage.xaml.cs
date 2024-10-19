@@ -92,6 +92,10 @@ namespace WebBrowser
 
         private void onFavoritesClick()
         {
+            int horizontalEdgeUiWidth = 204 + 42 * uiIndex;
+            int verticalEdgeUiWidth = 32 + 6 * uiIndex;
+            int spacing = 10 + 2 * uiIndex;
+
             if (favoritesBar)
             {
                 favoritesBar = false;
@@ -137,10 +141,11 @@ namespace WebBrowser
 
                 btnAddFavorites.Opacity = 100;
                 btnAddFavorites.IsEnabled = true;
-                btnAddFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 115, 0);
                 btnRemoveFavorites.Opacity = 100;
                 btnRemoveFavorites.IsEnabled = true;
-                btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
+                btnAddFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count) * (verticalEdgeUiWidth + spacing)), (204 + 42 * uiIndex) / 2 + 12, 0);
+                btnRemoveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count) * (verticalEdgeUiWidth + spacing)), 10, 0);
+
                 btnSaveFavorites.Opacity = 100;
                 btnSaveFavorites.IsEnabled = true;
                 btnSaveHistory.Opacity = 100;
@@ -152,11 +157,19 @@ namespace WebBrowser
                 btnShowHistory.Opacity = 100;
                 btnShowHistory.IsEnabled = true;
 
-                btnSaveFavorites.Margin = new Thickness(0, 0, 10, 45);
-                btnSaveHistory.Margin = new Thickness(0, 0, 10, 10);
-                btnClearHistory.Margin = new Thickness(0, 0, 10, 80);
-                btnClearFavorites.Margin = new Thickness(0, 0, 10, 115);
-                btnShowHistory.Margin = new Thickness(0, 0, 10, 150);
+                btnShowHistory.VerticalAlignment = VerticalAlignment.Top;
+                btnShowHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 1) * (verticalEdgeUiWidth + spacing)), 10, 0);
+                btnClearFavorites.VerticalAlignment = VerticalAlignment.Top;
+                btnClearFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 2) * (verticalEdgeUiWidth + spacing)), 10, 0);
+                btnClearHistory.VerticalAlignment =VerticalAlignment.Top;
+                btnClearHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 3) * (verticalEdgeUiWidth + spacing)), 10, 0);
+                btnSaveFavorites.VerticalAlignment = VerticalAlignment.Top;
+                btnSaveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 4) * (verticalEdgeUiWidth + spacing)), 10, 0);
+                btnSaveHistory.VerticalAlignment = VerticalAlignment.Top;
+                btnSaveHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 5) * (verticalEdgeUiWidth + spacing)), 10, 0);
+
+                lstHistory.VerticalAlignment = VerticalAlignment.Top;
+                lstHistory.Margin = new Thickness(0, wvMain.Margin.Top, 240 + 50 * uiIndex + 15, 0);
 
                 if (favesFirstCreation)
                 {
@@ -196,6 +209,15 @@ namespace WebBrowser
             btnRemoveFavorites.Width = (204 + 42 * uiIndex) / 2 - 2;
             btnAddFavorites.Height = 32 + 6 * uiIndex;
             btnRemoveFavorites.Height = 32 + 6 * uiIndex;
+
+            int horizontalEdgeUiWidth = 204 + 42 * uiIndex;
+            int verticalEdgeUiWidth = 32 + 6 * uiIndex;
+            int spacing = 10 + 2 * uiIndex;
+            btnShowHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 1) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnClearFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 2) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnClearHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 3) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnSaveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 4) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnSaveHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 5) * (verticalEdgeUiWidth + spacing)), 10, 0);
 
             if (favorites[i].Contains("www"))
             {
@@ -280,6 +302,15 @@ namespace WebBrowser
             btnRemoveFavorites.Width = (204 + 42 * uiIndex) / 2 - 2;
             btnAddFavorites.Height = 32 + 6 * uiIndex;
             btnRemoveFavorites.Height = 32 + 6 * uiIndex;
+
+            int horizontalEdgeUiWidth = 204 + 42 * uiIndex;
+            int verticalEdgeUiWidth = 32 + 6 * uiIndex;
+            int spacing = 10 + 2 * uiIndex;
+            btnShowHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 1) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnClearFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 2) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnClearHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 3) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnSaveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 4) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnSaveHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 5) * (verticalEdgeUiWidth + spacing)), 10, 0);
         }
 
         private void btnAddFavorites_Click(object sender, RoutedEventArgs e)
@@ -634,6 +665,7 @@ namespace WebBrowser
 
                 Color bgColor = Color.FromArgb(255, (byte) Int32.Parse(settingsString[0]), (byte)Int32.Parse(settingsString[1]), (byte)Int32.Parse(settingsString[2]));
                 Grid.Background = new SolidColorBrush(bgColor);
+                lstHistory.Background = new SolidColorBrush(bgColor);
 
                 homepageUrl = (settingsString[3]);
             }
@@ -934,6 +966,26 @@ namespace WebBrowser
             btnAddFavorites.Width = horizontalEdgeUiWidth / 2 - 2;
             btnAddFavorites.Height = verticalEdgeUiWidth;
             btnAddFavorites.Margin = new Thickness(0, endOfFavsY + 10, horizontalEdgeUiWidth / 2 + 12, 0);
+
+            btnShowHistory.Width = horizontalEdgeUiWidth;
+            btnShowHistory.Height = verticalEdgeUiWidth;
+            btnShowHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 1) * (verticalEdgeUiWidth + spacing)), 10, 0);
+
+            btnClearFavorites.Width = horizontalEdgeUiWidth;
+            btnClearFavorites.Height = verticalEdgeUiWidth;
+            btnClearFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 2) * (verticalEdgeUiWidth + spacing)), 10, 0);
+
+            btnClearHistory.Width = horizontalEdgeUiWidth;
+            btnClearHistory.Height = verticalEdgeUiWidth;
+            btnClearHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 3) * (verticalEdgeUiWidth + spacing)), 10, 0);
+
+            btnSaveFavorites.Width = horizontalEdgeUiWidth;
+            btnSaveFavorites.Height = verticalEdgeUiWidth;
+            btnSaveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 4) * (verticalEdgeUiWidth + spacing)), 10, 0);
+
+            btnSaveHistory.Width = horizontalEdgeUiWidth;
+            btnSaveHistory.Height = verticalEdgeUiWidth;
+            btnSaveHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 5) * (verticalEdgeUiWidth + spacing)), 10, 0);
 
         }
     }
