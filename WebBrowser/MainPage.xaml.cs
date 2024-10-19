@@ -65,9 +65,6 @@ namespace WebBrowser
 
             btnAddFavorites.Opacity = 0;
             btnRemoveFavorites.Opacity = 0;
-            tbAddRemoveURL.Opacity = 0;
-            btnAddRemoveFavs.Opacity = 0;
-            btnCopyCurrentURLFav.Opacity = 0;
             btnSaveFavorites.Opacity = 0;
             btnSaveHistory.Opacity = 0;
             btnClearHistory.Opacity = 0;
@@ -97,18 +94,13 @@ namespace WebBrowser
         {
             if (favoritesBar)
             {
-                wvMain.Width += 240;
                 favoritesBar = false;
+                reframeWvMain();
+                
                 btnAddFavorites.Opacity = 0;
                 btnAddFavorites.IsEnabled = false;
                 btnRemoveFavorites.Opacity = 0;
                 btnRemoveFavorites.IsEnabled = false;
-                tbAddRemoveURL.Opacity = 0;
-                tbAddRemoveURL.IsEnabled = false;
-                btnAddRemoveFavs.Opacity = 0;
-                btnAddRemoveFavs.IsEnabled = false;
-                btnCopyCurrentURLFav.Opacity = 0;
-                btnCopyCurrentURLFav.IsEnabled = false;
                 addCurrentFav = false;
                 removeCurrentFav = false;
                 btnSaveFavorites.Opacity = 0;
@@ -140,8 +132,9 @@ namespace WebBrowser
             }
             else
             {
-                wvMain.Width -= 240;
                 favoritesBar = true;
+                reframeWvMain();
+
                 btnAddFavorites.Opacity = 100;
                 btnAddFavorites.IsEnabled = true;
                 btnAddFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 115, 0);
@@ -159,9 +152,6 @@ namespace WebBrowser
                 btnShowHistory.Opacity = 100;
                 btnShowHistory.IsEnabled = true;
 
-                tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
-                btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
-                btnCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
                 btnSaveFavorites.Margin = new Thickness(0, 0, 10, 45);
                 btnSaveHistory.Margin = new Thickness(0, 0, 10, 10);
                 btnClearHistory.Margin = new Thickness(0, 0, 10, 80);
@@ -197,14 +187,15 @@ namespace WebBrowser
             Button favorite = new Button();
             favorite.Name = "favorite" + i;
             favorite.VerticalAlignment = VerticalAlignment.Top;
-            favorite.Margin = new Thickness(0, 75 + 40 * i, 10, 0);
+            favorite.Margin = new Thickness(0, wvMain.Margin.Top + 10 + i * (32 + 6 * uiIndex + 5 + uiIndex), 10, 0);
             favorite.Tag = favorites[i];
 
-            btnAddFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 115, 0);
-            btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
-            tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
-            btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
-            btnCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
+            btnAddFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count) * (32 + 6 * uiIndex + 10 + 2 * uiIndex)), (204 + 42 * uiIndex)/2 + 12, 0);
+            btnRemoveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count) * (32 + 6 * uiIndex + 10 + 2 * uiIndex)), 10, 0);
+            btnAddFavorites.Width = (204 + 42 * uiIndex) / 2 - 2;
+            btnRemoveFavorites.Width = (204 + 42 * uiIndex) / 2 - 2;
+            btnAddFavorites.Height = 32 + 6 * uiIndex;
+            btnRemoveFavorites.Height = 32 + 6 * uiIndex;
 
             if (favorites[i].Contains("www"))
             {
@@ -221,11 +212,13 @@ namespace WebBrowser
                 favorite.Content = shortenedUrl;
             }
 
-            favorite.Width = 205;
-            favorite.Height = 30;
+            favorite.Width = 204 + 42 * uiIndex;
+            favorite.Height = 32 + 6 * uiIndex;
             favorite.HorizontalAlignment = HorizontalAlignment.Right;
             favorite.Click += favorite_click;
             Grid.Children.Add(favorite);
+
+            reframeWvMain();
         }
 
         private void favorite_click(object sender, RoutedEventArgs e)
@@ -239,7 +232,7 @@ namespace WebBrowser
 
         private void btnAddRemoveFavs_Click(object sender, RoutedEventArgs e)
         {
-            String url = tbAddRemoveURL.Text;
+            String url = tbUrl.Text;
             String validUrl = makeValidUrl(url);
             if (addCurrentFav)
             {
@@ -249,8 +242,6 @@ namespace WebBrowser
                     favorites.Add(makeValidUrl(validUrl));
                     createFavButton(favorites.Count - 1);
                 }
-
-                tbAddRemoveURL.Text = "";
             }
             else if (removeCurrentFav)
             {
@@ -259,9 +250,6 @@ namespace WebBrowser
                 {
                     removeFavoriteBtn(validUrl);
                 }
-
-                tbAddRemoveURL.Text = "";
-                
             }
         }
 
@@ -286,14 +274,12 @@ namespace WebBrowser
             }
 
 
-            btnAddFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 115, 0);
-            btnRemoveFavorites.Opacity = 100;
-            btnRemoveFavorites.IsEnabled = true;
-            btnRemoveFavorites.Margin = new Thickness(0, 75 + 40 * favorites.Count, 10, 0);
-
-            tbAddRemoveURL.Margin = new Thickness(0, 115 + 40 * favorites.Count, 42, 0);
-            btnAddRemoveFavs.Margin = new Thickness(0, 115 + 40 * favorites.Count, 10, 0);
-            btnCopyCurrentURLFav.Margin = new Thickness(0, 150 + 40 * favorites.Count, 10, 0);
+            btnAddFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count) * (32 + 6 * uiIndex + 10 + 2 * uiIndex)), (204 + 42 * uiIndex) / 2 + 12, 0);
+            btnRemoveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count) * (32 + 6 * uiIndex + 10 + 2 * uiIndex)), 10, 0);
+            btnAddFavorites.Width = (204 + 42 * uiIndex) / 2 - 2;
+            btnRemoveFavorites.Width = (204 + 42 * uiIndex) / 2 - 2;
+            btnAddFavorites.Height = 32 + 6 * uiIndex;
+            btnRemoveFavorites.Height = 32 + 6 * uiIndex;
         }
 
         private void btnAddFavorites_Click(object sender, RoutedEventArgs e)
@@ -334,7 +320,7 @@ namespace WebBrowser
                 favorites.Add(makeValidUrl(validUrl));
                 createFavButton(favorites.Count - 1);
             }
-
+            reframeWvMain();
         }
 
         private void btnRemoveFavorites_Click(object sender, RoutedEventArgs e)
@@ -374,6 +360,7 @@ namespace WebBrowser
             {
                 removeFavoriteBtn(validUrl);
             }
+            reframeWvMain();
         }
 
         private void btnBack_Click(object sender, RoutedEventArgs e)
@@ -432,7 +419,6 @@ namespace WebBrowser
 
         private void btnCopyCurrentURLFav_Click(object sender, RoutedEventArgs e)
         {
-            tbAddRemoveURL.Text = tbUrl.Text;
         }
 
         private void wvMain_NavigationCompleted(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs args)
@@ -777,8 +763,7 @@ namespace WebBrowser
             if (settingsBar)
             {
                 settingsBar = false;
-                wvMain.Width += 240;
-                wvMain.Margin = new Thickness(0, 50, 0, 0);
+                reframeWvMain();
 
                 btnChangeBg.Opacity = 0;
                 btnChangeBg.IsEnabled = false;
@@ -792,9 +777,8 @@ namespace WebBrowser
             }
             else
             {
-                wvMain.Width -= 240;
                 settingsBar = true;
-                wvMain.Margin = new Thickness(240 + 50 * uiIndex, 50, 0, 0);
+                reframeWvMain();
 
                 btnChangeBg.Opacity = 100;
                 btnChangeBg.IsEnabled = true;
@@ -845,13 +829,18 @@ namespace WebBrowser
 
         private void btnUIBigger_Click(object sender, RoutedEventArgs e)
         {
-            uiIndex += 1;
+            if (uiIndex < 5) 
+            {
+                uiIndex += 1;
 
-            onSettingsClick();
-            onSettingsClick();
+                onSettingsClick();
+                onSettingsClick();
 
-            onFavoritesClick();
-            onFavoritesClick();
+                onFavoritesClick();
+                onFavoritesClick();
+
+                resizeUIFeatures();
+            }
         }
 
         private void btnUISmaller_Click(object sender, RoutedEventArgs e)
@@ -864,25 +853,88 @@ namespace WebBrowser
 
                 onFavoritesClick();
                 onFavoritesClick();
+
+                resizeUIFeatures();
             }
         }
 
-        private (int, int) reframeWvMain()
+        private void reframeWvMain()
         {
             int wvMainWidth = 2560;
             int wvMainX = 0;
+            int wvMainHeight = 1440;
+            int wvMainY = 0;
 
             if(settingsBar)
             {
-                wvMainWidth -= 240 * uiIndex * 50;
+                wvMainWidth -= 240 + uiIndex * 50;
                 wvMainX += 240 + uiIndex * 50;
             }
             if (favoritesBar)
             {
-                wvMainWidth -= 240 * uiIndex * 50;
+                wvMainWidth -= 240 + uiIndex * 50;
             }
 
-            return (wvMainWidth, wvMainX);
+            wvMainY = 50 + 25 * uiIndex;
+            wvMainHeight = 1440 - wvMainY;
+
+
+            wvMain.Width = wvMainWidth;
+            wvMain.Height = wvMainHeight;
+            wvMain.Margin = new Thickness(wvMainX, wvMainY, 0, 0);
+        }
+
+        private void resizeUIFeatures()
+        {
+            tbUrl.Width = 317 + 158 * uiIndex;
+            tbUrl.Height = 32 + 16 * uiIndex;
+
+            btnSearch.Width = 61 + 30 * uiIndex;
+            btnSearch.Height = 32 + 16 * uiIndex;
+            btnSearch.Margin = new Thickness(tbUrl.Width + btnSearch.Width, 10, 0, 0);
+
+            btnRefresh.Width = 32 + 16 * uiIndex;
+            btnRefresh.Height = 32 + 16 * uiIndex;
+            btnRefresh.Margin = new Thickness(- tbUrl.Width - btnSearch.Width / 2, 10, 0, 0);
+
+            int horizontalEdgeUiWidth = 204 + 42 * uiIndex;
+            int verticalEdgeUiWidth = 32 + 6 * uiIndex;
+            int spacing = 10 + 2 * uiIndex;
+
+            tbBgColor.Width = horizontalEdgeUiWidth;
+            tbBgColor.Height = verticalEdgeUiWidth;
+            tbBgColor.Margin = new Thickness(10, wvMain.Margin.Top + 10, 0, 0);
+
+            btnChangeBg.Width = horizontalEdgeUiWidth;
+            btnChangeBg.Height = verticalEdgeUiWidth; 
+            btnChangeBg.Margin = new Thickness(10, wvMain.Margin.Top + 10 + verticalEdgeUiWidth, 0, 0);
+
+            btnSetHomepage.Width = horizontalEdgeUiWidth;
+            btnSetHomepage.Height = verticalEdgeUiWidth;
+            btnSetHomepage.Margin = new Thickness(10, wvMain.Margin.Top + 10 + 2 * verticalEdgeUiWidth + spacing, 0, 0);
+
+            for (int i = 0; i < favorites.Count; i++)
+            {
+                Object findBtn = Grid.FindName("favorite" + i);
+                if (findBtn is Button)
+                {
+                    Button currentFavBtn = findBtn as Button;
+                    currentFavBtn.Width = horizontalEdgeUiWidth;
+                    currentFavBtn.Height = verticalEdgeUiWidth;
+                    currentFavBtn.Margin = new Thickness(0, wvMain.Margin.Top + 10 + i * (verticalEdgeUiWidth + spacing / 2), 10, 0);
+
+                }
+            }
+
+            int endOfFavsY = (int)(wvMain.Margin.Top + 10 + (favorites.Count) * (verticalEdgeUiWidth + spacing / 2));
+            btnRemoveFavorites.Width = horizontalEdgeUiWidth / 2 - 2;
+            btnRemoveFavorites.Height = verticalEdgeUiWidth;
+            btnRemoveFavorites.Margin = new Thickness(0, endOfFavsY + 10, 10, 0);
+
+            btnAddFavorites.Width = horizontalEdgeUiWidth / 2 - 2;
+            btnAddFavorites.Height = verticalEdgeUiWidth;
+            btnAddFavorites.Margin = new Thickness(0, endOfFavsY + 10, horizontalEdgeUiWidth / 2 + 12, 0);
+
         }
     }
 }
