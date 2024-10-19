@@ -15,9 +15,9 @@
         <Button x:Name="btnForward" Content="Forward" Margin="0,10,90,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="btnForward_Click"/>
         <Button x:Name="btnFavorites" Content="Favorites" Margin="0,10,10,0" VerticalAlignment="Top" RenderTransformOrigin="2.587,-0.156" Click="btnFavorites_Click" HorizontalAlignment="Right"/>
         <TextBox x:Name="tbUrl" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="317" TextChanged="tbUrl_TextChanged" KeyUp="tbUrl_KeyUp" Height="32"/>
-        <Button x:Name="btnAddFavorites" Content="+" Margin="0,51,115,0" VerticalAlignment="Top" Height="30" Width="100" Click="btnAddFavorites_Click" RenderTransformOrigin="3.642,20.423" HorizontalAlignment="Right"/>
+        <Button x:Name="btnAddFavorites" Content="Add" Margin="0,51,115,0" VerticalAlignment="Top" Height="30" Width="100" Click="btnAddFavorites_Click" RenderTransformOrigin="3.642,20.423" HorizontalAlignment="Right"/>
         <Button x:Name="btnSearch" Content="Search" Margin="380,10,0,0" VerticalAlignment="Top" Click="btnSearch_Click" HorizontalAlignment="Center"/>
-        <Button x:Name="btnRemoveFavorites" Content="-" Margin="0,51,10,0" VerticalAlignment="Top" Width="100" Height="30" HorizontalAlignment="Right" Click="btnRemoveFavorites_Click"/>
+        <Button x:Name="btnRemoveFavorites" Content="Remove" Margin="0,51,10,0" VerticalAlignment="Top" Width="100" Height="30" HorizontalAlignment="Right" Click="btnRemoveFavorites_Click"/>
         <TextBox x:Name="tbAddRemoveURL" HorizontalAlignment="Right" Margin="0,86,42,0" TextWrapping="Wrap" Text="https://www." VerticalAlignment="Top" Width="172" Height="32"/>
         <Button x:Name="btnAddRemoveFavs" Content="✓" Margin="0,86,10,0" VerticalAlignment="Top" Width="32" Height="32" Click="btnAddRemoveFavs_Click" HorizontalAlignment="Right"/>
         <Button x:Name="btnCopyCurrentURLFav" Content="Copy Current URL" Margin="0,123,10,0" VerticalAlignment="Top" Width="204" HorizontalAlignment="Right" Click="btnCopyCurrentURLFav_Click"/>
@@ -32,10 +32,10 @@
         <Button x:Name="btnSettings" Content="Settings" Margin="73,10,0,0" VerticalAlignment="Top" Click="btnSettings_Click"/>
         <Button x:Name="btnChangeBg" Content="Change Background Color" Margin="10,92,0,0" VerticalAlignment="Top" Width="204" Click="btnChangeBg_Click"/>
         <TextBox x:Name="tbBgColor" HorizontalAlignment="Left" Margin="10,60,0,0" TextWrapping="Wrap" Text="#" VerticalAlignment="Top" Width="204" Height="32"/>
-        <TextBox x:Name="tbHomepage" HorizontalAlignment="Left" Margin="10,139,0,0" TextWrapping="Wrap" Text="https://" VerticalAlignment="Top" Width="171" Height="32"/>
-        <Button x:Name="btnCopyHomepage" Content="⧉" Margin="179,140,0,0" VerticalAlignment="Top" Click="btnCopyHomepage_Click"/>
-        <Button x:Name="btnSetHomepage" Content="Set Homepage" Margin="10,172,0,0" VerticalAlignment="Top" Width="204" Click="btnSetHomepage_Click"/>
+        <Button x:Name="btnSetHomepage" Content="Set Homepage" Margin="10,139,0,0" VerticalAlignment="Top" Width="204" Click="btnSetHomepage_Click"/>
         <Button x:Name="btnSaveSettings" Content="Save Settings" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="204" Click="btnSaveSettings_Click"/>
+        <Button x:Name="btnUIBigger" Content="+" Margin="10,185,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.215,-0.091" Click="btnUIBigger_Click"/>
+        <Button x:Name="btnUISmaller" Content="-" Margin="50,185,0,0" VerticalAlignment="Top" Click="btnUISmaller_Click"/>
 
     </Grid>
 </Page>

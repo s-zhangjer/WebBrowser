@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Chat;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Core;
@@ -39,7 +42,6 @@ namespace WebBrowser
         bool frontNavigate = false;
         bool refreshNavigate = false;
         bool lstHistoryNavigate = false;
-        bool homepageNavigate = false;
 
         bool addCurrentFav = false;
         bool removeCurrentFav = false;
@@ -47,12 +49,15 @@ namespace WebBrowser
         bool showLstHistory = false;
         bool settingsBar = false;
 
+
+        int uiIndex = 0;
+
         String homepageUrl = "";
         
         public MainPage()
         {
             this.InitializeComponent();
-            tbUrl.Text = "https://www.";
+            tbUrl.Text = "";
             currentUrl = "";
             favoritesBar = false;
             wvMain.Width = 2560;
@@ -72,8 +77,6 @@ namespace WebBrowser
 
             btnChangeBg.Opacity = 0;
             tbBgColor.Opacity = 0;
-            tbHomepage.Opacity = 0;
-            btnCopyHomepage.Opacity = 0;
             btnSetHomepage.Opacity = 0;
             btnSaveSettings.Opacity = 0;
         }
@@ -87,7 +90,11 @@ namespace WebBrowser
 
         private void btnFavorites_Click(object sender, RoutedEventArgs e)
         {
-            Button favorite = new Button();
+            onFavoritesClick();
+        }
+
+        private void onFavoritesClick()
+        {
             if (favoritesBar)
             {
                 wvMain.Width += 240;
@@ -130,7 +137,7 @@ namespace WebBrowser
                     }
                 }
 
-            } 
+            }
             else
             {
                 wvMain.Width -= 240;
@@ -161,8 +168,6 @@ namespace WebBrowser
                 btnClearFavorites.Margin = new Thickness(0, 0, 10, 115);
                 btnShowHistory.Margin = new Thickness(0, 0, 10, 150);
 
-                favorite.Opacity = 100;
-
                 if (favesFirstCreation)
                 {
                     for (int i = 0; i < favorites.Count; i++)
@@ -184,10 +189,9 @@ namespace WebBrowser
                         }
                     }
                 }
-                
+
             }
         }
-
         void createFavButton(int i)
         {
             Button favorite = new Button();
@@ -236,37 +240,28 @@ namespace WebBrowser
         private void btnAddRemoveFavs_Click(object sender, RoutedEventArgs e)
         {
             String url = tbAddRemoveURL.Text;
-            if (!url.Equals("https://www.") && url.Substring(12, url.Length - 12).Contains(".")) { 
-                if (addCurrentFav)
+            String validUrl = makeValidUrl(url);
+            if (addCurrentFav)
+            {
+
+                if (!favorites.Contains(validUrl))
                 {
-                    if (!url.Substring(url.Length - 1, 1).Equals("/"))
-                    {
-                        url += "/";
-                    }
-
-                    if (!favorites.Contains(url))
-                    {
-                        favorites.Add(url);
-                        createFavButton(favorites.Count - 1);
-                    }
-
-                    tbAddRemoveURL.Text = "https://www.";
+                    favorites.Add(makeValidUrl(validUrl));
+                    createFavButton(favorites.Count - 1);
                 }
 
-                else if (removeCurrentFav)
+                tbAddRemoveURL.Text = "";
+            }
+            else if (removeCurrentFav)
+            {
+
+                if (favorites.Contains(validUrl))
                 {
-                    if (!url.Substring(url.Length - 1, 1).Equals("/"))
-                    {
-                        url += "/";
-                    }
-
-                    if (favorites.Contains(url))
-                    {
-                        removeFavoriteBtn(url);
-                    }
-
-                    tbAddRemoveURL.Text = "https://www.";
+                    removeFavoriteBtn(validUrl);
                 }
+
+                tbAddRemoveURL.Text = "";
+                
             }
         }
 
@@ -303,7 +298,7 @@ namespace WebBrowser
 
         private void btnAddFavorites_Click(object sender, RoutedEventArgs e)
         {
-            if (!addCurrentFav)
+            /*if (!addCurrentFav)
             {
                 tbAddRemoveURL.Opacity = 100;
                 tbAddRemoveURL.IsEnabled = true;
@@ -330,13 +325,21 @@ namespace WebBrowser
 
                 addCurrentFav = false;
                 removeCurrentFav = false;
+            }*/
+            String url = tbUrl.Text;
+            String validUrl = makeValidUrl(url);
+
+            if (!favorites.Contains(validUrl))
+            {
+                favorites.Add(makeValidUrl(validUrl));
+                createFavButton(favorites.Count - 1);
             }
 
         }
 
         private void btnRemoveFavorites_Click(object sender, RoutedEventArgs e)
         {
-            if (!removeCurrentFav)
+            /*if (!removeCurrentFav)
             {
                 tbAddRemoveURL.Opacity = 100;
                 tbAddRemoveURL.IsEnabled = true;
@@ -363,6 +366,13 @@ namespace WebBrowser
 
                 removeCurrentFav = false;
                 addCurrentFav = false;
+            }*/
+            String url = tbUrl.Text;
+            String validUrl = makeValidUrl(url);
+
+            if (favorites.Contains(validUrl))
+            {
+                removeFavoriteBtn(validUrl);
             }
         }
 
@@ -396,11 +406,13 @@ namespace WebBrowser
         private void searchFunction()
         {
             String url = tbUrl.Text;
+            String validUrl = makeValidUrl(url);
+
             if (!url.StartsWith("https://")){
                 url = "https://" + url;
             }
-            wvMain.Source = (new Uri(url));
-            updateTbUrl(url);
+            wvMain.Source = (new Uri(validUrl));
+            updateTbUrl(validUrl);
         }
 
         private void tbUrl_KeyUp(object sender, KeyRoutedEventArgs e)
@@ -416,7 +428,6 @@ namespace WebBrowser
             String url = homepageUrl;
             wvMain.Source = (new Uri(url));
             updateTbUrl(url);
-            homepageNavigate = true;
         }
 
         private void btnCopyCurrentURLFav_Click(object sender, RoutedEventArgs e)
@@ -429,7 +440,7 @@ namespace WebBrowser
             String url = wvMain.Source.ToString();
             tbUrl.Text = url;
 
-            if (!backNavigate && !frontNavigate && !firstLoadFromHistory && !refreshNavigate && !lstHistoryNavigate && !homepageNavigate)
+            if (!backNavigate && !frontNavigate && !firstLoadFromHistory && !refreshNavigate && !lstHistoryNavigate)
             {
                 history.Insert(historyIndex + 1, url);
                 historyIndex++;
@@ -443,7 +454,6 @@ namespace WebBrowser
                 firstLoadFromHistory = false;
                 refreshNavigate = false;
                 lstHistoryNavigate = false;
-                homepageNavigate = false;
             }
         }
 
@@ -645,10 +655,12 @@ namespace WebBrowser
             {
             }
 
-            if (homepageUrl.Equals("") || !(Uri.IsWellFormedUriString(homepageUrl, UriKind.Absolute)))
+            if (homepageUrl.Equals(""))
             {
                 homepageUrl = "https://www.yahoo.com/";
             }
+            
+            homepageUrl =  makeValidUrl(homepageUrl);
         }
 
         private void btnClearHistory_Click(object sender, RoutedEventArgs e)
@@ -750,33 +762,28 @@ namespace WebBrowser
             Color bgColor = Color.FromArgb(255, (byte) rInt, (byte) gInt, (byte) bInt);
             Grid.Background = new SolidColorBrush(bgColor);
         }
-
-        private void btnCopyHomepage_Click(object sender, RoutedEventArgs e)
-        {
-            tbHomepage.Text = tbUrl.Text;
-        }
-
         private void btnSetHomepage_Click(object sender, RoutedEventArgs e)
         {
-            homepageUrl = tbHomepage.Text;
+            homepageUrl = makeValidUrl(tbUrl.Text);
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
+            onSettingsClick();
+        }
+
+        private void onSettingsClick()
+        {
             if (settingsBar)
             {
-                wvMain.Width += 240;
                 settingsBar = false;
+                wvMain.Width += 240;
                 wvMain.Margin = new Thickness(0, 50, 0, 0);
 
                 btnChangeBg.Opacity = 0;
                 btnChangeBg.IsEnabled = false;
                 tbBgColor.Opacity = 0;
                 tbBgColor.IsEnabled = false;
-                tbHomepage.Opacity = 0;
-                tbHomepage.IsEnabled = false;
-                btnCopyHomepage.Opacity = 0;
-                btnCopyHomepage.IsEnabled = false;
                 btnSetHomepage.Opacity = 0;
                 btnSetHomepage.IsEnabled = false;
                 btnSaveSettings.Opacity = 0;
@@ -787,16 +794,12 @@ namespace WebBrowser
             {
                 wvMain.Width -= 240;
                 settingsBar = true;
-                wvMain.Margin = new Thickness(240, 50, 0, 0);
+                wvMain.Margin = new Thickness(240 + 50 * uiIndex, 50, 0, 0);
 
                 btnChangeBg.Opacity = 100;
                 btnChangeBg.IsEnabled = true;
                 tbBgColor.Opacity = 100;
                 tbBgColor.IsEnabled = true;
-                tbHomepage.Opacity = 100;
-                tbHomepage.IsEnabled = true;
-                btnCopyHomepage.Opacity = 100;
-                btnCopyHomepage.IsEnabled = true;
                 btnSetHomepage.Opacity = 100;
                 btnSetHomepage.IsEnabled = true;
                 btnSaveSettings.Opacity = 100;
@@ -807,6 +810,79 @@ namespace WebBrowser
         private void btnSaveSettings_Click(object sender, RoutedEventArgs e)
         {
             saveSettingsFile();
+        }
+
+        private string makeValidUrl(String url)
+        {
+            if (url.Contains("://"))
+            {
+                url = url.Substring(url.IndexOf("://") + 3, url.Length - url.IndexOf("://") - 3);
+            }
+            if (url.Contains("w."))
+            {
+                url = url.Substring(url.IndexOf("w.") + 2, url.Length - url.IndexOf("w.") - 2);
+            }
+
+            if(url.Equals(""))
+            {
+                url += "yahoo";
+            }
+            if (!url.Contains("."))
+            {
+                url += ".com/";
+            }
+            
+            if(!url.EndsWith("/"))
+            {
+                url += "/"; 
+            }
+
+
+            url = "https://www." + url;
+
+            return url;
+        }
+
+        private void btnUIBigger_Click(object sender, RoutedEventArgs e)
+        {
+            uiIndex += 1;
+
+            onSettingsClick();
+            onSettingsClick();
+
+            onFavoritesClick();
+            onFavoritesClick();
+        }
+
+        private void btnUISmaller_Click(object sender, RoutedEventArgs e)
+        {
+            if (uiIndex > 0)
+            {
+                uiIndex -= 1;
+                onSettingsClick();
+                onSettingsClick();
+
+                onFavoritesClick();
+                onFavoritesClick();
+            }
+        }
+
+        private (int, int) reframeWvMain()
+        {
+            int wvMainWidth = 2560;
+            int wvMainX = 0;
+
+            if(settingsBar)
+            {
+                wvMainWidth -= 240 * uiIndex * 50;
+                wvMainX += 240 + uiIndex * 50;
+            }
+            if (favoritesBar)
+            {
+                wvMainWidth -= 240 * uiIndex * 50;
+            }
+
+            return (wvMainWidth, wvMainX);
         }
     }
 }
