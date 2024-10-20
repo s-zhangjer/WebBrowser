@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -48,6 +49,12 @@ namespace WebBrowser
         bool firstLoadFromHistory = false;
         bool showLstHistory = false;
         bool settingsBar = false;
+        bool showClrBackground = false;
+
+        bool showClrBackgroundResizingBypass = false;
+        bool showLstHistoryResizingBypass = false;
+
+        Windows.UI.Color gridBackgroundColor;
 
 
         int uiIndex = 0;
@@ -73,9 +80,12 @@ namespace WebBrowser
             btnShowHistory.Opacity = 0;     
 
             btnChangeBg.Opacity = 0;
-            tbBgColor.Opacity = 0;
             btnSetHomepage.Opacity = 0;
             btnSaveSettings.Opacity = 0;
+            clrBackground.Opacity = 0;
+            btnUIBigger.Opacity = 0;
+            btnUISmaller.Opacity = 0;
+
         }
 
 
@@ -192,11 +202,17 @@ namespace WebBrowser
                         }
                     }
                 }
+            }
 
+            if(showLstHistoryResizingBypass)
+            {
+                lstHistory.Opacity = 100;
+                lstHistory.IsEnabled = true;
             }
         }
         void createFavButton(int i)
         {
+            int fontsize = 14 + 3 * uiIndex;
             Button favorite = new Button();
             favorite.Name = "favorite" + i;
             favorite.VerticalAlignment = VerticalAlignment.Top;
@@ -237,9 +253,11 @@ namespace WebBrowser
             favorite.Width = 204 + 42 * uiIndex;
             favorite.Height = 32 + 6 * uiIndex;
             favorite.HorizontalAlignment = HorizontalAlignment.Right;
+            favorite.FontSize = fontsize;
             favorite.Click += favorite_click;
             Grid.Children.Add(favorite);
 
+            uiTextColorChanger(gridBackgroundColor);
             reframeWvMain();
         }
 
@@ -484,7 +502,7 @@ namespace WebBrowser
         }
         private void wvMain_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadSaveData();
+            LoadSavedFavoritesData();
             LoadSavedHistoryData();
             LoadSavedSettingsData();
         }
@@ -492,35 +510,6 @@ namespace WebBrowser
         private void btnSaveFavorites_Click(object sender, RoutedEventArgs e)
         {
             saveFavoritesFile();
-        }
-
-        public async Task<String> saveSettingsFile()
-        {
-            Windows.Storage.StorageFolder storageFolder =
-                    Windows.Storage.ApplicationData.Current.LocalFolder;
-            Windows.Storage.StorageFile savedHomepageFile =
-                    await storageFolder.CreateFileAsync("savedHomepage.txt",
-                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            String data = getSettingsSaveData();
-
-            await Windows.Storage.FileIO.WriteTextAsync(savedHomepageFile, data);
-
-            return data;
-        }
-
-        public String getSettingsSaveData()
-        {
-            String save = "";
-            Color bgColor = (Grid.Background as SolidColorBrush).Color;
-            int rInt = bgColor.R;
-            int gInt = bgColor.G;
-            int bInt = bgColor.B;
-            save += rInt + "\n";
-            save += gInt + "\n";
-            save += bInt + "\n";
-            save += homepageUrl;
-
-            return save;
         }
 
         public async Task<String> saveFavoritesFile()
@@ -540,11 +529,56 @@ namespace WebBrowser
         public String getFavoritesSaveData()
         {
             String favoritesString = "";
-            for(int i = 0; i < favorites.Count; i++)
+            for (int i = 0; i < favorites.Count; i++)
             {
                 favoritesString += favorites[i].ToString() + "\n";
             }
             return favoritesString.Substring(0, favoritesString.Length - 1);
+        }
+
+        private async void LoadSavedFavoritesData()
+        {
+            try
+            {
+                Windows.Storage.StorageFolder storageFolder =
+                        Windows.Storage.ApplicationData.Current.LocalFolder;
+                Windows.Storage.StorageFile savedFavoritesFile =
+                    await storageFolder.GetFileAsync("savedFavorites.txt");
+
+                string favoritesText = await Windows.Storage.FileIO.ReadTextAsync(savedFavoritesFile);
+
+                String[] favoritesString = favoritesText.Split('\n');
+
+                if (!favoritesString.Contains("https://www.nasa.gov/"))
+                {
+                    favorites.Insert(0, "https://www.nasa.gov/");
+                }
+                if (!favoritesString.Contains("https://www.amazon.com/"))
+                {
+                    favorites.Insert(0, "https://www.amazon.com/");
+                }
+
+                foreach (var line in favoritesString)
+                {
+                    favorites.Add(line.Trim());
+                }
+            }
+            catch (Exception)
+            {
+                // This is just in case the file doesn't exist
+                // this is important on the FIRST run, and in case something goes wrong!
+            }
+
+            if (!favorites.Contains("https://www.nasa.gov/"))
+            {
+                favorites.Insert(0, "https://www.nasa.gov/");
+            }
+            if (!favorites.Contains("https://www.amazon.com/"))
+            {
+                favorites.Insert(0, "https://www.amazon.com/");
+            }
+
+            favorites.Remove("");
         }
 
         private void btnSaveHistory_Click(object sender, RoutedEventArgs e)
@@ -576,51 +610,6 @@ namespace WebBrowser
             return historyString.Substring(0, historyString.Length - 1);
         }
 
-        private async void LoadSaveData()
-        {
-            try
-            {
-                Windows.Storage.StorageFolder storageFolder =
-                        Windows.Storage.ApplicationData.Current.LocalFolder;
-                Windows.Storage.StorageFile savedFavoritesFile =
-                    await storageFolder.GetFileAsync("savedFavorites.txt");
-
-                string favoritesText = await Windows.Storage.FileIO.ReadTextAsync(savedFavoritesFile);
-
-                String[] favoritesString = favoritesText.Split('\n');
-
-                if (!favoritesString.Contains("https://www.nasa.gov/"))
-                {
-                    favorites.Insert(0, "https://www.nasa.gov/");
-                }
-                if (!favoritesString.Contains("https://www.amazon.com/"))
-                {
-                    favorites.Insert(0, "https://www.amazon.com/");
-                }
-                
-                foreach (var line in favoritesString)
-                {
-                    favorites.Add(line.Trim());
-                }
-            }
-            catch (Exception)
-            {
-                // This is just in case the file doesn't exist
-                // this is important on the FIRST run, and in case something goes wrong!
-            }
-
-            if (!favorites.Contains("https://www.nasa.gov/"))
-            {
-                favorites.Insert(0, "https://www.nasa.gov/");
-            }
-            if (!favorites.Contains("https://www.amazon.com/"))
-            {
-                favorites.Insert(0, "https://www.amazon.com/");
-            }
-
-            favorites.Remove("");
-        }
-
         private async void LoadSavedHistoryData()
         {
             try
@@ -637,8 +626,8 @@ namespace WebBrowser
                     history.Add(line.Trim());
                 }
             }
-            catch 
-            { 
+            catch
+            {
             }
             history.Remove("");
 
@@ -649,6 +638,36 @@ namespace WebBrowser
                 wvMain.Source = new Uri(history[historyIndex]);
                 bool firstLoadFromHistory = true;
             }
+        }
+
+        public async Task<String> saveSettingsFile()
+        {
+            Windows.Storage.StorageFolder storageFolder =
+                    Windows.Storage.ApplicationData.Current.LocalFolder;
+            Windows.Storage.StorageFile savedHomepageFile =
+                    await storageFolder.CreateFileAsync("savedHomepage.txt",
+                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
+            String data = getSettingsSaveData();
+
+            await Windows.Storage.FileIO.WriteTextAsync(savedHomepageFile, data);
+
+            return data;
+        }
+
+        public String getSettingsSaveData()
+        {
+            String save = "";
+            Windows.UI.Color bgColor = (Grid.Background as SolidColorBrush).Color;
+            int rInt = bgColor.R;
+            int gInt = bgColor.G;
+            int bInt = bgColor.B;
+            save += rInt + "\n";
+            save += gInt + "\n";
+            save += bInt + "\n";
+            save += homepageUrl + "\n";
+            save += uiIndex;
+
+            return save;
         }
 
         private async void LoadSavedSettingsData()
@@ -663,11 +682,16 @@ namespace WebBrowser
 
                 String[] settingsString = homepageText.Split('\n');
 
-                Color bgColor = Color.FromArgb(255, (byte) Int32.Parse(settingsString[0]), (byte)Int32.Parse(settingsString[1]), (byte)Int32.Parse(settingsString[2]));
+                Windows.UI.Color bgColor = Windows.UI.Color.FromArgb(255, (byte)Int32.Parse(settingsString[0]), (byte)Int32.Parse(settingsString[1]), (byte)Int32.Parse(settingsString[2]));
+                gridBackgroundColor = bgColor;
                 Grid.Background = new SolidColorBrush(bgColor);
                 lstHistory.Background = new SolidColorBrush(bgColor);
+                clrBackground.Background = new SolidColorBrush(bgColor);
 
                 homepageUrl = (settingsString[3]);
+                uiIndex = Convert.ToInt32(settingsString[4]);
+
+                uiTextColorChanger(bgColor);
             }
             catch
             {
@@ -677,8 +701,8 @@ namespace WebBrowser
             {
                 homepageUrl = "https://www.yahoo.com/";
             }
-            
-            homepageUrl =  makeValidUrl(homepageUrl);
+
+            homepageUrl = makeValidUrl(homepageUrl);
         }
 
         private void btnClearHistory_Click(object sender, RoutedEventArgs e)
@@ -758,27 +782,17 @@ namespace WebBrowser
         }
         private void btnChangeBg_Click(object sender, RoutedEventArgs e)
         {
-            String r = tbBgColor.Text.Substring(1, 2);
-            String g = tbBgColor.Text.Substring(3, 2);
-            String b = tbBgColor.Text.Substring(5, 2);
-            int rInt = 0;
-            int gInt = 0;
-            int bInt = 0;
-            try
+            if (!showClrBackground)
             {
-                rInt = (int)Convert.ToInt64(r, 16);
-                gInt = (int)Convert.ToInt64(g, 16);
-                bInt = (int)Convert.ToInt64(b, 16);
+                clrBackground.Opacity = 100;
+                clrBackground.IsEnabled = true;
             }
-            catch 
+            else
             {
-                rInt = 0;
-                gInt = 0;
-                bInt = 0;
+                clrBackground.Opacity = 0;
+                clrBackground.IsEnabled = false;
             }
-
-            Color bgColor = Color.FromArgb(255, (byte) rInt, (byte) gInt, (byte) bInt);
-            Grid.Background = new SolidColorBrush(bgColor);
+            showClrBackground = !showClrBackground;
         }
         private void btnSetHomepage_Click(object sender, RoutedEventArgs e)
         {
@@ -792,6 +806,10 @@ namespace WebBrowser
 
         private void onSettingsClick()
         {
+            int horizontalEdgeUiWidth = 204 + 42 * uiIndex;
+            int verticalEdgeUiWidth = 32 + 6 * uiIndex;
+            int spacing = 10 + 2 * uiIndex;
+
             if (settingsBar)
             {
                 settingsBar = false;
@@ -799,13 +817,18 @@ namespace WebBrowser
 
                 btnChangeBg.Opacity = 0;
                 btnChangeBg.IsEnabled = false;
-                tbBgColor.Opacity = 0;
-                tbBgColor.IsEnabled = false;
                 btnSetHomepage.Opacity = 0;
                 btnSetHomepage.IsEnabled = false;
                 btnSaveSettings.Opacity = 0;
                 btnSaveSettings.IsEnabled = false;
+                btnUIBigger.Opacity = 0;
+                btnUIBigger.IsEnabled = false;
+                btnUISmaller.Opacity = 0;
+                btnUISmaller.IsEnabled = false;
 
+                showClrBackground = false;
+                clrBackground.Opacity = 0;
+                clrBackground.IsEnabled = false;
             }
             else
             {
@@ -814,12 +837,23 @@ namespace WebBrowser
 
                 btnChangeBg.Opacity = 100;
                 btnChangeBg.IsEnabled = true;
-                tbBgColor.Opacity = 100;
-                tbBgColor.IsEnabled = true;
                 btnSetHomepage.Opacity = 100;
                 btnSetHomepage.IsEnabled = true;
                 btnSaveSettings.Opacity = 100;
                 btnSaveSettings.IsEnabled = true;
+                btnUIBigger.Opacity = 100;
+                btnUIBigger.IsEnabled = true;
+                btnUISmaller.Opacity= 100;
+                btnUISmaller.IsEnabled = true;
+
+                btnSaveSettings.VerticalAlignment = VerticalAlignment.Top;
+                btnSaveSettings.Margin = new Thickness(10, wvMain.Margin.Top + 10 + 3 * verticalEdgeUiWidth + 2 * spacing, 0, 0);
+            }
+
+            if (showClrBackgroundResizingBypass)
+            {
+                clrBackground.Opacity = 100;
+                clrBackground.IsEnabled = true;
             }
         }
 
@@ -864,6 +898,14 @@ namespace WebBrowser
             if (uiIndex < 5) 
             {
                 uiIndex += 1;
+                if (showClrBackground)
+                {
+                    showClrBackgroundResizingBypass = true;
+                }
+                if (showLstHistory)
+                {
+                    showLstHistoryResizingBypass = true;
+                }
 
                 onSettingsClick();
                 onSettingsClick();
@@ -880,6 +922,15 @@ namespace WebBrowser
             if (uiIndex > 0)
             {
                 uiIndex -= 1;
+                if (showClrBackground)
+                {
+                    showClrBackgroundResizingBypass = true;
+                }
+                if (showLstHistory)
+                {
+                    showLstHistoryResizingBypass = true;
+                }
+
                 onSettingsClick();
                 onSettingsClick();
 
@@ -918,32 +969,82 @@ namespace WebBrowser
 
         private void resizeUIFeatures()
         {
-            tbUrl.Width = 317 + 158 * uiIndex;
-            tbUrl.Height = 32 + 16 * uiIndex;
-
-            btnSearch.Width = 61 + 30 * uiIndex;
-            btnSearch.Height = 32 + 16 * uiIndex;
-            btnSearch.Margin = new Thickness(tbUrl.Width + btnSearch.Width, 10, 0, 0);
-
-            btnRefresh.Width = 32 + 16 * uiIndex;
-            btnRefresh.Height = 32 + 16 * uiIndex;
-            btnRefresh.Margin = new Thickness(- tbUrl.Width - btnSearch.Width / 2, 10, 0, 0);
-
+            int fontsizeTop = 14 + 7 * uiIndex;
             int horizontalEdgeUiWidth = 204 + 42 * uiIndex;
             int verticalEdgeUiWidth = 32 + 6 * uiIndex;
             int spacing = 10 + 2 * uiIndex;
 
-            tbBgColor.Width = horizontalEdgeUiWidth;
-            tbBgColor.Height = verticalEdgeUiWidth;
-            tbBgColor.Margin = new Thickness(10, wvMain.Margin.Top + 10, 0, 0);
+            tbUrl.Width = 317 + 158 * uiIndex;
+            tbUrl.Height = 32 + 16 * uiIndex;
+            tbUrl.FontSize = fontsizeTop;
+
+            btnSearch.Width = 61 + 30 * uiIndex;
+            btnSearch.Height = 32 + 16 * uiIndex;
+            btnSearch.Margin = new Thickness(tbUrl.Width + btnSearch.Width, 10, 0, 0);
+            btnSearch.FontSize = fontsizeTop;
+
+            btnRefresh.Width = 32 + 16 * uiIndex;
+            btnRefresh.Height = 32 + 16 * uiIndex;
+            btnRefresh.Margin = new Thickness(- tbUrl.Width - btnSearch.Width / 2, 10, 0, 0);
+            btnRefresh.FontSize = fontsizeTop;
+
+            btnHome.Width = 58 + 29 * uiIndex;
+            btnHome.Height = 32 + 16 * uiIndex;
+            btnHome.Margin = new Thickness(10, 10, 0, 0);
+            btnHome.FontSize = fontsizeTop;
+
+            btnSettings.Width = 70 + 35 * uiIndex;
+            btnSettings.Height = 32 + 16 * uiIndex;
+            btnSettings.Margin = new Thickness(10 + btnHome.Width + spacing, 10, 0, 0);
+            btnSettings.FontSize = fontsizeTop;
+
+            btnFavorites.Width = 75 + 18 * uiIndex;
+            btnFavorites.Height = 32 + 16 * uiIndex;
+            btnFavorites.Margin = new Thickness(0, 10, 10, 0);
+            btnFavorites.FontSize = fontsizeTop;
+
+            btnForward.Width = 70 + 17 * uiIndex;
+            btnForward.Height = 32 + 16 * uiIndex;
+            btnForward.Margin = new Thickness(0, 10, 10 + btnFavorites.Width + spacing, 0);
+            btnForward.FontSize = fontsizeTop;
+
+            btnBack.Width = 49 + 12 * uiIndex;
+            btnBack.Height = 32 + 16 * uiIndex;
+            btnBack.Margin = new Thickness(0, 10, 10 + btnFavorites.Width + btnForward.Width + 2 * spacing, 0);
+            btnBack.FontSize = fontsizeTop;
+
+            //--- Side Bar UI
+
+            int fontsizeSide = 14 + 3 * uiIndex;
 
             btnChangeBg.Width = horizontalEdgeUiWidth;
             btnChangeBg.Height = verticalEdgeUiWidth; 
-            btnChangeBg.Margin = new Thickness(10, wvMain.Margin.Top + 10 + verticalEdgeUiWidth, 0, 0);
+            btnChangeBg.Margin = new Thickness(10, wvMain.Margin.Top + 10, 0, 0);
+            btnChangeBg.FontSize = fontsizeSide;
+
+            clrBackground.Width = 258 + 53 * uiIndex;
+            clrBackground.Margin = new Thickness(240 + 50 * uiIndex, 50 + 25 * uiIndex, 0, 0);
 
             btnSetHomepage.Width = horizontalEdgeUiWidth;
             btnSetHomepage.Height = verticalEdgeUiWidth;
-            btnSetHomepage.Margin = new Thickness(10, wvMain.Margin.Top + 10 + 2 * verticalEdgeUiWidth + spacing, 0, 0);
+            btnSetHomepage.Margin = new Thickness(10, wvMain.Margin.Top + 10 + 1 * verticalEdgeUiWidth + spacing, 0, 0);
+            btnSetHomepage.FontSize = fontsizeSide;
+
+            btnUIBigger.Width = horizontalEdgeUiWidth / 2 - 2;
+            btnUIBigger.Height = verticalEdgeUiWidth;
+            btnUIBigger.Margin = new Thickness(10, wvMain.Margin.Top + 10 + 2 * verticalEdgeUiWidth + 2 * spacing, 0, 0);
+            btnUIBigger.FontSize = fontsizeSide;
+
+            btnUISmaller.Width = horizontalEdgeUiWidth / 2 - 2;
+            btnUISmaller.Height = verticalEdgeUiWidth;
+            btnUISmaller.Margin = new Thickness(horizontalEdgeUiWidth / 2 + 12, wvMain.Margin.Top + 10 + 2 * verticalEdgeUiWidth + 2 * spacing, 0, 0);
+            btnUISmaller.FontSize = fontsizeSide;
+
+            btnSaveSettings.VerticalAlignment = VerticalAlignment.Top;
+            btnSaveSettings.Width = horizontalEdgeUiWidth;
+            btnSaveSettings.Height = verticalEdgeUiWidth;
+            btnSaveSettings.Margin = new Thickness(10, wvMain.Margin.Top + 10 + 3 * verticalEdgeUiWidth + 3 * spacing, 0, 0);
+            btnSaveSettings.FontSize = fontsizeSide;
 
             for (int i = 0; i < favorites.Count; i++)
             {
@@ -954,6 +1055,7 @@ namespace WebBrowser
                     currentFavBtn.Width = horizontalEdgeUiWidth;
                     currentFavBtn.Height = verticalEdgeUiWidth;
                     currentFavBtn.Margin = new Thickness(0, wvMain.Margin.Top + 10 + i * (verticalEdgeUiWidth + spacing / 2), 10, 0);
+                    currentFavBtn.FontSize = fontsizeSide;
 
                 }
             }
@@ -962,31 +1064,131 @@ namespace WebBrowser
             btnRemoveFavorites.Width = horizontalEdgeUiWidth / 2 - 2;
             btnRemoveFavorites.Height = verticalEdgeUiWidth;
             btnRemoveFavorites.Margin = new Thickness(0, endOfFavsY + 10, 10, 0);
+            btnRemoveFavorites.FontSize = fontsizeSide;
 
             btnAddFavorites.Width = horizontalEdgeUiWidth / 2 - 2;
             btnAddFavorites.Height = verticalEdgeUiWidth;
             btnAddFavorites.Margin = new Thickness(0, endOfFavsY + 10, horizontalEdgeUiWidth / 2 + 12, 0);
+            btnAddFavorites.FontSize = fontsizeSide;
 
             btnShowHistory.Width = horizontalEdgeUiWidth;
             btnShowHistory.Height = verticalEdgeUiWidth;
             btnShowHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 1) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnShowHistory.FontSize = fontsizeSide;
 
             btnClearFavorites.Width = horizontalEdgeUiWidth;
             btnClearFavorites.Height = verticalEdgeUiWidth;
             btnClearFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 2) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnClearFavorites.FontSize = fontsizeSide;
 
             btnClearHistory.Width = horizontalEdgeUiWidth;
             btnClearHistory.Height = verticalEdgeUiWidth;
             btnClearHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 3) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnClearHistory.FontSize = fontsizeSide;
 
             btnSaveFavorites.Width = horizontalEdgeUiWidth;
             btnSaveFavorites.Height = verticalEdgeUiWidth;
             btnSaveFavorites.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 4) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnSaveFavorites.FontSize = fontsizeSide;
 
             btnSaveHistory.Width = horizontalEdgeUiWidth;
             btnSaveHistory.Height = verticalEdgeUiWidth;
             btnSaveHistory.Margin = new Thickness(0, (int)(wvMain.Margin.Top + 10 + (favorites.Count + 5) * (verticalEdgeUiWidth + spacing)), 10, 0);
+            btnSaveHistory.FontSize = fontsizeSide;
 
+            lstHistory.Width = horizontalEdgeUiWidth;
+            lstHistory.Height = 500 + 100 * uiIndex;
+            lstHistory.FontSize = 11 + 2 * uiIndex;
+
+        }
+
+        private void clrBackground_ColorChanged(ColorPicker sender, ColorChangedEventArgs args)
+        {
+            Grid.Background = new SolidColorBrush((Windows.UI.Color) clrBackground.Color);
+            lstHistory.Background = new SolidColorBrush((Windows.UI.Color) clrBackground.Color);
+            clrBackground.Background = new SolidColorBrush((Windows.UI.Color) clrBackground.Color);
+
+            gridBackgroundColor = (Windows.UI.Color)clrBackground.Color;
+
+            uiTextColorChanger((Windows.UI.Color)clrBackground.Color);
+        }
+
+        private void uiTextColorChanger(Windows.UI.Color color)
+        {
+            int rInt = (int)color.R;
+            int gInt = (int)color.G;
+            int bInt = (int)color.B;
+
+            Windows.UI.Color textColor;
+            Windows.UI.Color bgColor;
+
+            double avg = (rInt + gInt + bInt) / 3;
+            if (avg > 128)
+            {
+                textColor = Windows.UI.Color.FromArgb(255, 0, 0, 0);
+                bgColor = Windows.UI.Color.FromArgb(20, 0, 0, 0);
+            } else
+            {
+                textColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);
+                bgColor = Windows.UI.Color.FromArgb(20, 255, 255, 255);
+            }
+
+            SolidColorBrush textBrush = new SolidColorBrush(textColor);
+            SolidColorBrush bgBrush = new SolidColorBrush(bgColor);
+
+            tbUrl.Foreground = textBrush;
+
+            btnSearch.Foreground = textBrush;
+            btnSearch.Background = bgBrush;
+            btnRefresh.Foreground = textBrush;
+            btnRefresh.Background = bgBrush;
+            btnHome.Foreground = textBrush;
+            btnHome.Background = bgBrush;
+            btnSettings.Foreground = textBrush;
+            btnSettings.Background = bgBrush;
+            btnFavorites.Foreground = textBrush;
+            btnFavorites.Background = bgBrush;
+            btnForward.Foreground = textBrush;
+            btnForward.Background = bgBrush;
+            btnBack.Foreground = textBrush;
+            btnBack.Background = bgBrush;
+
+            btnChangeBg.Foreground = textBrush;
+            btnChangeBg.Background = bgBrush;
+            btnSetHomepage.Foreground = textBrush;
+            btnSetHomepage.Background = bgBrush;
+            btnUIBigger.Foreground = textBrush;
+            btnUIBigger.Background = bgBrush;
+            btnUISmaller.Foreground = textBrush;
+            btnUISmaller.Background = bgBrush;
+            btnSaveSettings.Foreground = textBrush;
+            btnSaveSettings.Background = bgBrush;
+
+            for(int i = 0; i < favorites.Count; i++)
+            {
+                Object findBtn = Grid.FindName("favorite" + i);
+                if (findBtn is Button)
+                {
+                    Button currentFavBtn = findBtn as Button;
+                    currentFavBtn.Foreground = textBrush;
+                    currentFavBtn.Background = bgBrush;
+                }
+            }
+
+            btnRemoveFavorites.Foreground = textBrush;
+            btnRemoveFavorites.Background = bgBrush;
+            btnAddFavorites.Foreground= textBrush;
+            btnAddFavorites.Background = bgBrush;
+            btnShowHistory.Foreground = textBrush;
+            btnShowHistory.Background = bgBrush;
+            btnClearFavorites.Foreground = textBrush;
+            btnClearFavorites.Background = bgBrush;
+            btnClearHistory.Foreground = textBrush;
+            btnClearHistory.Background = bgBrush;
+            btnSaveFavorites.Foreground = textBrush;
+            btnSaveFavorites.Background = bgBrush;
+            btnSaveHistory.Foreground = textBrush;
+            btnSaveHistory.Background = bgBrush;
         }
     }
 }
