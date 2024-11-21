@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid x:Name="Grid">
+    <Grid x:Name="Grid" Loaded="Grid_Loaded">
 
         <Button x:Name="btnHome" Content="Home" Margin="10,10,0,0" VerticalAlignment="Top" Click="btnHome_Click"/>
         <controls:WebView2 x:Name="wvMain" Margin="0,50,0,0" HorizontalAlignment="Left" Width="1920" VerticalAlignment="Top" Height="1030" NavigationCompleted="wvMain_NavigationCompleted" Loaded="wvMain_Loaded"/>
@@ -34,6 +34,7 @@
         <Button x:Name="btnUIBigger" Content="UI Size +" Margin="9,132,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.215,-0.091" Click="btnUIBigger_Click" Width="97"/>
         <Button x:Name="btnUISmaller" Content="UI Size -" Margin="112,132,0,0" VerticalAlignment="Top" Click="btnUISmaller_Click" RenderTransformOrigin="2.692,-0.806" Width="102"/>
         <ColorPicker x:Name="clrBackground" HorizontalAlignment="Left" Margin="240,50,0,0" VerticalAlignment="Top" ColorChanged="clrBackground_ColorChanged" Width="258"/>
+        <Slider x:Name="sldUISize" HorizontalAlignment="Left" Margin="9,168,0,0" VerticalAlignment="Top" Width="199" Maximum="5" StepFrequency="0.1" ValueChanged="sldUISize_ValueChanged" Tapped="sldUISize_Tapped"/>
 
     </Grid>
 </Page>
