@@ -780,6 +780,7 @@ namespace WebBrowser
             {
                 wvMain.Source = new Uri(lstHistory.SelectedItem.ToString());
                 lstHistoryNavigate = true;
+                historyIndex = lstHistory.SelectedIndex;
             }
         }
 
