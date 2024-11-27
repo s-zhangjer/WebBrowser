@@ -1040,17 +1040,17 @@ namespace WebBrowser
             btnFavorites.Width = 75 + 18 * uiIndex;
             btnFavorites.Height = 32 + 16 * uiIndex;
             btnFavorites.Margin = new Thickness(0, 10, 10, 0);
-            btnFavorites.FontSize = fontsizeTop;
+            btnFavorites.FontSize = fontsizeTop / (uiIndex / 6 + 1);
 
             btnForward.Width = 70 + 17 * uiIndex;
             btnForward.Height = 32 + 16 * uiIndex;
             btnForward.Margin = new Thickness(0, 10, 10 + btnFavorites.Width + spacing, 0);
-            btnForward.FontSize = fontsizeTop;
+            btnForward.FontSize = fontsizeTop / (uiIndex / 6 + 1);
 
             btnBack.Width = 49 + 12 * uiIndex;
             btnBack.Height = 32 + 16 * uiIndex;
             btnBack.Margin = new Thickness(0, 10, 10 + btnFavorites.Width + btnForward.Width + 2 * spacing, 0);
-            btnBack.FontSize = fontsizeTop;
+            btnBack.FontSize = fontsizeTop / (uiIndex / 6 + 1);
 
             //--- Side Bar UI
 
